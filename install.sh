@@ -10,7 +10,7 @@ install(){
 	echo "Installing pathogen..."
 	mkdir -p ~/.vim/autoload ~/.vim/bundle;
 	curl -Sso ~/.vim/autoload/pathogen.vim \
-		https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+    https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
 	echo "DONE"
 
 	# install nerdTree
@@ -19,7 +19,7 @@ install(){
 	echo "DONE"
 
 	# Copy vimrc file
-	echo -n "Copying vimrc to ~/.vimrci..."
+	echo -n "Copying vimrc to ~/.vimrc..."
 	cp vimrc ~/.vimrc		
 	echo "DONE"
 	
