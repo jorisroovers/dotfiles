@@ -1,3 +1,7 @@
+# vim: ft:gitconfig
+[user]
+    name = Joris Roovers
+    email = jroovers@cisco.com
 [core]
     excludesfile = ~/.gitignore
 [color]
