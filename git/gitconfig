@@ -4,5 +4,6 @@
     email = jroovers@cisco.com
 [core]
     excludesfile = ~/.gitignore
+    editor = vim
 [color]
-	ui = true
+	ui = always
