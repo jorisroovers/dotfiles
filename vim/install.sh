@@ -4,13 +4,25 @@
 #                                  #
 ####################################
 
-install(){
+assert_installed(){
+	if ! dpkg -s $1 2>/dev/null; then
+		echo "ERROR: Package '$1' is required to run this script"
+		exit 1
+	fi	
+}
+
+check_requirements(){
+	assert_installed wget
+	assert_installed git
+}
+
+install(){	
 
 	# install pathogen
 	echo "Installing pathogen..."
 	mkdir -p ~/.vim/autoload ~/.vim/bundle;
-	curl -Sso ~/.vim/autoload/pathogen.vim \
-    https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+	wget -O ~/.vim/autoload/pathogen.vim \
+    	https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
 	echo "DONE"
 
 	# install nerdTree
@@ -25,6 +37,7 @@ install(){
 	
 }
 
+check_requirements
 install 
 
 
