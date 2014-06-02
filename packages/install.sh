@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR=$(dirname $0)
+PACKAGES_FILE="$SCRIPT_DIR/packages"
 
 if [[ $EUID -ne 0 ]]; then
     echo "Please run this script as root"
@@ -18,11 +20,13 @@ ask_install(){
     fi
 }
 
-ask_install "vim"
-ask_install "curl"
-ask_install "openjdk-7-jdk"
+# For each package in $PACKAGES_FILE, ask if it needs to be installed
+for available_package in `cat $PACKAGES_FILE`
+do
+    ask_install $available_package
+done
 
-echo "Installing packages (CTRL+C to abort): ${packages[@]}"
+echo "Installing packages (CTRL+C to abort, ENTER to continue): ${packages[@]}"
 read -e
 
 sudo apt-get install -y ${packages[@]}
