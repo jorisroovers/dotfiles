@@ -1,10 +1,15 @@
 execute pathogen#infect()
 set number
 
+syntax on
+filetype plugin indent on
+
 " = TABS =
 " The width of a TAB is set to 4. Still it is a \t. It is just that. 
 " vim will interpret it to be having a width of 4.
 set tabstop=4
+"" In case of auto-identing (or manually shifting code blocks), use this width
+set shiftwidth=4
 " Convert tabs to spaces
 set expandtab
 

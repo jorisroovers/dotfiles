@@ -4,6 +4,7 @@
 #                                  #
 ####################################
 
+# Asserts that a package has been installed
 assert_installed(){
 	if ! dpkg -s $1 2>/dev/null; then
 		echo "ERROR: Package '$1' is required to run this script"
@@ -16,24 +17,54 @@ check_requirements(){
 	assert_installed git
 }
 
+RED="\033[31m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+GREEN="\033[32m"
+NO_COLOR="\033[0m"
+
+report(){
+    MSG="[$YELLOW$1$NO_COLOR]"
+    echo -e $MSG
+}
+
 install(){	
 
+	bundle_path=~/.vim/bundle
+
 	# install pathogen
-	echo "Installing pathogen..."
-	mkdir -p ~/.vim/autoload ~/.vim/bundle;
+	report "Installing pathogen..."
+	mkdir -p ~/.vim/autoload $bundle_path;
 	wget -O ~/.vim/autoload/pathogen.vim \
     	https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-	echo "DONE"
+	report "DONE"
 
 	# install nerdTree
-	echo "Installing NerdTree"
-	git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
-	echo "DONE"
+	report "Installing NerdTree"
+	git clone https://github.com/scrooloose/nerdtree.git $bundle_path/nerdtree
+	report "DONE"
+    
+    # L9
+	report "Installing L9 (vim utility library needed by autocomplpop)"
+	zipfile=$bundle_path/L9.zip
+	wget -O $zipfile https://bitbucket.org/ns9tks/vim-l9/get/tip.zip
+	unzip $zipfile -d $bundle_path
+	rm $zipfile
+	report "DONE"
+
+    # autocomplpop
+	report "Installing autocomplpop"
+    	zipfile=$bundle_path/autocomplpop.zip
+	wget -O $zipfile \
+        https://bitbucket.org/ns9tks/vim-autocomplpop/get/tip.zip
+	unzip $zipfile -d $bundle_path
+	rm $zipfile
+	report "DONE"
 
 	# Copy vimrc file
-	echo -n "Copying vimrc to ~/.vimrc..."
+	report "Copying vimrc to ~/.vimrc..."
 	cp vimrc ~/.vimrc		
-	echo "DONE"
+	report "DONE"
 	
 }
 
