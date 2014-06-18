@@ -8,15 +8,21 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 packages=()
+already_installed=()
 
 ask_install(){
     package=$1
-    read -e -p "Install package '$package' (Y/n): " install
-    # -z -> check if empty (needed because bash doesn't like to comparison with
-    # empty strings
-    # ${var, ,} -> to lower case
-    if [[ -z $install ]] || [ "y" == ${install,,} ]; then
-        packages+=( $package )
+    if [[ `dpkg -s $package 2> /dev/null` ]]; then
+        already_installed+=( $package )
+        echo "Already installed packaged '$package'."
+    else
+        read -e -p "Install package '$package' (Y/n): " install
+        # -z -> check if empty (needed because bash doesn't like to comparison with
+        # empty strings
+        # ${var, ,} -> to lower case
+        if [[ -z $install ]] || [ "y" == ${install,,} ]; then
+            packages+=( $package )
+        fi
     fi
 }
 
@@ -26,9 +32,13 @@ do
     ask_install $available_package
 done
 
-echo "Installing packages (CTRL+C to abort, ENTER to continue): ${packages[@]}"
-read -e
+if [ ${#packages[@]} -gt 0 ]; then
 
-sudo apt-get install -y ${packages[@]}
+    echo "Installing packages (CTRL+C to abort, ENTER to continue): ${packages[@]}"
+    read -e
 
-echo "ALL DONE"
+    sudo apt-get install -y ${packages[@]}
+
+    echo "ALL DONE"
+fi
+
