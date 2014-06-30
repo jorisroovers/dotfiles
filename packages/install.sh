@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_DIR=$(dirname $0)
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 PACKAGES_FILE="$SCRIPT_DIR/packages"
 
 if [[ $EUID -ne 0 ]]; then

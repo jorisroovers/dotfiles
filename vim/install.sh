@@ -3,6 +3,7 @@
 # Simple script for setting up Vim #
 #                                  #
 ####################################
+script_dir="$( cd "$( dirname "$0" )" && pwd )"
 
 # Asserts that a package has been installed
 assert_installed(){
@@ -63,7 +64,7 @@ install(){
 
 	# Copy vimrc file
 	report "Copying vimrc to ~/.vimrc..."
-	cp vimrc ~/.vimrc		
+	cp $script_dir/vimrc ~/.vimrc		
 	report "DONE"
 	
 }
