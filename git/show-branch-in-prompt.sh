@@ -8,7 +8,7 @@
 # just force git branch to not use any colors
 
 function parse_git_branch () {
-  git branch -c color.ui=false 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+  git -c color.ui=false branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
  
 RED="\[\033[0;31m\]"
