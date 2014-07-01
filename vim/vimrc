@@ -19,7 +19,6 @@ set smartcase  " unless we use capital letters in our searchstring
 set incsearch  " incremental search
 " use n for next match, N for previous match
 
-
 "  = NerdTree =
 " NerdTree specific customizations
 autocmd vimenter * NERDTree 
@@ -34,6 +33,15 @@ autocmd VimEnter * wincmd p
 "autocmd BufNew * wincmd p 
 
 " = Highlighting =
+" Highlights trailing whitespace. 
+" Note the use of the Syntax command instead of the map command as being
+" used to indicate the 80 chars width. This is because there can only be a
+" single map command.
+" http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+highlight ExtraWhitespace ctermbg=darkgreen guibg=darkgreen
+"match ExtraWhitespace /\s\+$/
+autocmd Syntax * syn match ExtraWhitespace /\s\+$/
+
 " Highlights chars in lines that go over 80 chars
 " http://stackoverflow.com/questions/235439/vim-80-column-layout-concerns
 highlight OverLength ctermbg=red ctermfg=white guibg=#592929
