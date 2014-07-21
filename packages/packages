@@ -4,3 +4,5 @@ npm
 openjdk-7-jdk
 tree
 git-review
+python-virtualenv
+python-pip
