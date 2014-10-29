@@ -13,6 +13,9 @@ report(){
 
 report "*** LINUX SETUP ***"
 
+report "[Running packages/install.sh (as sudo)]"
+sudo packages/install.sh
+
 report "[Running vim/install.sh]"
 vim/install.sh
 
@@ -21,8 +24,5 @@ misc/install.sh
 
 report "[Running git/install.sh]"
 git/install.sh
-
-report "[Running packages/install.sh (as sudo)]"
-sudo packages/install.sh
 
 report "ALL DONE"
