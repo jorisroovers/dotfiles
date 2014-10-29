@@ -32,6 +32,19 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 autocmd VimEnter * wincmd p
 "autocmd BufNew * wincmd p 
 
+" Set some convenience commands for NerdTree
+let mapleader = ','
+nnoremap <leader>d :NERDTreeToggle<CR>      " Toggle director
+" Open current file in NERDTree
+nnoremap <leader>f :NERDTreeFind<CR>
+
+" Window switching
+" Allow switching between windows using Ctrl + arrow keys
+noremap <C-Left> <C-w>h
+noremap <C-Down> <C-w>j
+noremap <C-Up> <C-w>k
+noremap <C-Right> <C-w>l
+
 " = Highlighting =
 " Highlights trailing whitespace. 
 " Note the use of the Syntax command instead of the map command as being
