@@ -4,6 +4,10 @@ set number
 syntax on
 filetype plugin indent on
 
+" recognize strings containing a dash as a single word by appending the dash
+" to the iskeyword variable
+set iskeyword+=-
+
 " = TABS =
 " The width of a TAB is set to 4. Still it is a \t. It is just that. 
 " vim will interpret it to be having a width of 4.
@@ -37,6 +41,9 @@ let mapleader = ','
 nnoremap <leader>d :NERDTreeToggle<CR>      " Toggle director
 " Open current file in NERDTree
 nnoremap <leader>f :NERDTreeFind<CR>
+" Enclose word under cursor in double quotes
+nnoremap <Leader>q ciw""<Esc>P
+
 
 " Window switching
 " Allow switching between windows using Ctrl + arrow keys
