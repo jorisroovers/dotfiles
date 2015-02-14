@@ -55,12 +55,20 @@ install(){
 
     # autocomplpop
 	report "Installing autocomplpop"
-    	zipfile=$bundle_path/autocomplpop.zip
+    zipfile=$bundle_path/autocomplpop.zip
 	wget -O $zipfile \
         https://bitbucket.org/ns9tks/vim-autocomplpop/get/tip.zip
 	unzip $zipfile -d $bundle_path
 	rm $zipfile
 	report "DONE"
+
+    # Conque
+    cd ~/.vim/bundle
+    zipfile=$bundle_path/conque.zip
+    wget -O $zipfile http://conque.googlecode.com/files/conque_2.3.zip
+    unzip $zipfile -d $bundle_path/conque
+    rm $zipfile
+    report "DONE"
 
 	# Copy vimrc file
 	report "Copying vimrc to ~/.vimrc..."

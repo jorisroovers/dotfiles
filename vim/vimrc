@@ -23,6 +23,10 @@ set smartcase  " unless we use capital letters in our searchstring
 set incsearch  " incremental search
 " use n for next match, N for previous match
 
+" Change split behavior to vsplit below and hsplit to the right
+set splitbelow
+set splitright
+
 "  = NerdTree =
 " NerdTree specific customizations
 autocmd vimenter * NERDTree 
@@ -43,6 +47,9 @@ nnoremap <leader>d :NERDTreeToggle<CR>      " Toggle director
 nnoremap <leader>f :NERDTreeFind<CR>
 " Enclose word under cursor in double quotes
 nnoremap <Leader>q ciw""<Esc>P
+
+" Set ,c as shortcut for Conque
+nnoremap <leader>c :5split<CR>:ConqueTerm bash<CR>
 
 
 " Window switching
