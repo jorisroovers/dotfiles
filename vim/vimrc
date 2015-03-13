@@ -41,10 +41,17 @@ autocmd VimEnter * wincmd p
 "autocmd BufNew * wincmd p 
 
 " Set some convenience commands for NerdTree
+" nnoremap -> first n -> normal mode (Vim also has visual and insert mode)
+"          -> noremap -> don't recursively map this.
+"             i.e noremap <key> <result> -> result won't resolve to foo
+"             if there was already a 'map <result> foo' before.
 let mapleader = ','
 nnoremap <leader>d :NERDTreeToggle<CR>      " Toggle director
 " Open current file in NERDTree
 nnoremap <leader>f :NERDTreeFind<CR>
+" Toggle linenumbers
+nnoremap <leader>n :set invnumber<CR>
+
 " Enclose word under cursor in double quotes
 nnoremap <Leader>q ciw""<Esc>P
 
