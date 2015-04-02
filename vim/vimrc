@@ -66,6 +66,18 @@ noremap <C-Down> <C-w>j
 noremap <C-Up> <C-w>k
 noremap <C-Right> <C-w>l
 
+" Command Aliases (for common typos)
+" http://stackoverflow.com/questions/3878692/aliasing-a-command-in-vim
+fun! SetupCommandAlias(from, to)
+    exec 'cnoreabbrev <expr> '.a:from
+           \ .' ((getcmdtype() is# ":" && getcmdline() is# "'.a:from.'")'
+           \ .'? ("'.a:to.'") : ("'.a:from.'"))'
+endfun
+
+call SetupCommandAlias("W", "w")
+call SetupCommandAlias("Wq", "wq")
+call SetupCommandAlias("q", "q!")
+
 " = Highlighting =
 " Highlights trailing whitespace. 
 " Note the use of the Syntax command instead of the map command as being
