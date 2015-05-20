@@ -6,4 +6,6 @@
     excludesfile = ~/.gitignore
     editor = vim
 [color]
-	ui = always
+    # ui = auto will always use color unless you are piping the output to
+    # another command, in which case no color is used
+    ui = auto
