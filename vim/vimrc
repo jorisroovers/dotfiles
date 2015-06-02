@@ -52,12 +52,34 @@ nnoremap <leader>f :NERDTreeFind<CR>
 " Toggle linenumbers
 nnoremap <leader>n :set invnumber<CR>
 
+
+
 " Enclose word under cursor in double quotes
 nnoremap <Leader>q ciw""<Esc>P
 
 " Set ,c as shortcut for Conque
 nnoremap <leader>c :5split<CR>:ConqueTerm bash<CR>
 
+" Help toggle function
+let g:help_is_open = 0
+function! ToggleHelp()
+    if g:help_is_open
+        let g:help_is_open = 0
+        " jump to the last window (only works when help window is on the outer
+        " right)
+        "   execute: execute the string as vim command
+        "   winnr("$"): get number of last window (outer right)
+        "   . (dot): concat
+        "   2wincmd w: jump to window 2
+        execute winnr("$") . "wincmd w"
+        q " Close the help windo
+    else
+        :vsplit ~/.vimhelp
+        let g:help_is_open = 1
+    endif
+endfunction
+
+nnoremap <leader>h :call ToggleHelp()<CR>
 
 " Window switching
 " Allow switching between windows using Ctrl + arrow keys

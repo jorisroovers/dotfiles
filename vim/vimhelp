@@ -1,0 +1,11 @@
+IDENTATION (TAB)
+    Use the > command. To indent 5 lines, 5>>
+
+SELECTION
+
+CTRL+V to do column based selection
+
+DEBUGGING
+
+echom -> shows output of vim commands
+e.g.: echom winnr()

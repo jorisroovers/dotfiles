@@ -72,8 +72,12 @@ install(){
 
 	# Copy vimrc file
 	report "Copying vimrc to ~/.vimrc..."
-	cp $script_dir/vimrc ~/.vimrc		
+	cp $script_dir/vimrc ~/.vimrc	
 	report "DONE"
+
+    report "Copying vimhelp to ~/.vimhelp..."
+    cp $script_dir/vimhelp ~/.vimhelp
+    report "DONE"
 	
 }
 
