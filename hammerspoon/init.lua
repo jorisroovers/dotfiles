@@ -19,8 +19,17 @@ end
 sparkTray = hs.menubar.new()
 
 function sparkTrayClicked()
-    screen = hs.screen.find("Thunderbolt Display")
-    hs.application.get("Cisco Spark"):mainWindow():moveToScreen(screen)
+    thunderboltDisplay = hs.screen.find("Thunderbolt Display")
+    dx80 = hs.screen.find("DX80")
+    -- raise() => Move screen to top but don't put the focus on it
+    sparkWindow = hs.application.get("Cisco Spark"):mainWindow()
+    -- If spark is on the DX80, move it to the thunderboltDisplay, otherwise,
+    -- move it to the DX80
+    if sparkWindow:screen() == dx80 then
+        sparkWindow:moveToScreen(thunderboltDisplay):raise()
+    else
+        sparkWindow:moveToScreen(dx80):raise()
+    end
 end
 
 if sparkTray then
