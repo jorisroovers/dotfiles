@@ -30,10 +30,17 @@ alias vup='vagrant up'
 alias vssh='vagrant ssh'
 alias vd='vagrant destroy -f'
 
+alias hass="ssh joris@192.168.1.121"
+alias cec="export CEC_USERNAME=jroovers; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
+
 # Adds colors to grep on mac
 # http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
-export GREP_OPTIONS='--color=always'
+export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;35;40'
 
 # added by Anaconda2 4.3.1 installer
 export PATH="/anaconda/bin:$PATH"
+
+# added etcher-cli to PATH: https://etcher.io/cli/
+export PATH="$PATH:/opt/etcher-cli"
+
