@@ -44,3 +44,4 @@ export PATH="/anaconda/bin:$PATH"
 # added etcher-cli to PATH: https://etcher.io/cli/
 export PATH="$PATH:/opt/etcher-cli"
 
+alias cat='ccat'

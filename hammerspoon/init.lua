@@ -36,3 +36,27 @@ if sparkTray then
     sparkTray:setTitle("spark")
     sparkTray:setClickCallback(sparkTrayClicked)
 end
+
+-----------------------------------------------------------
+-- Spark new contact
+-----------------------------------------------------------
+-- Use [[ my multi-line string ]] for mult-line strings
+CONTACT_APPLESCRIPT=[[tell application "System Events"
+	tell process "Cisco Spark"
+		set plusButton to button "+" of splitter group 1 of splitter group 1 of window 1
+		click plusButton
+		set popOver to pop over 1 of plusButton
+		UI elements of popOver
+		set contactPersonButton to button "B" of popOver
+		click contactPersonButton
+	end tell
+end tell]]
+
+-- Thank you kind sir: https://github.com/Hammerspoon/hammerspoon/issues/664#issuecomment-202829038
+sparkHotKeys = hs.hotkey.new('⌘', 'k', function()
+      hs.osascript.applescript(CONTACT_APPLESCRIPT)
+  end)
+--
+hs.window.filter.new('Cisco Spark')
+    :subscribe(hs.window.filter.windowFocused,function() sparkHotKeys:enable() end)
+    :subscribe(hs.window.filter.windowUnfocused,function() sparkHotKeys:disable() end)
