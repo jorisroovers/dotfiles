@@ -60,3 +60,22 @@ sparkHotKeys = hs.hotkey.new('⌘', 'k', function()
 hs.window.filter.new('Cisco Spark')
     :subscribe(hs.window.filter.windowFocused,function() sparkHotKeys:enable() end)
     :subscribe(hs.window.filter.windowUnfocused,function() sparkHotKeys:disable() end)
+
+--------------------------------------------------------
+-- Delete ansible vault file on sleep
+--------------------------------------------------------
+
+local screenLog = hs.logger.new('screen-log')
+screenLog.setLogLevel('info')
+
+local screenWatcher = hs.caffeinate.watcher
+function onScreenEvent(event)
+    -- screenLog.i(event)
+    if event == hs.caffeinate.watcher.systemWillSleep then
+        screenLog.i("Deleting ~/.ansible-vault-password")
+        hs.execute("rm -rf ~/.ansible-vault-password")
+    end
+end
+
+screenWatcher.new(onScreenEvent):start()
+
