@@ -1,3 +1,17 @@
+-- Load config from a configfile
+-- Sample:
+-- {
+--   "monit": {
+--     "username": "foo",
+--     "password": "bar,
+--     "host": "http://10.0.01:1234"
+--   }
+-- }
+
+local f = io.open(hs.fs.pathToAbsolute("~").."/.hammerspoon-user-config.json", "rb")
+local CONFIG = hs.json.decode(f:read("*all"))
+f:close()
+
 ------------------------------------------------------------
 -- AIRPODS input switching
 ------------------------------------------------------------
@@ -33,7 +47,8 @@ function sparkTrayClicked()
 end
 
 if sparkTray then
-    sparkTray:setTitle("spark")
+    -- sparkTray:setTitle("spark")
+    sparkTray:setIcon(hs.configdir.."/spark-tray-icon.png")
     sparkTray:setClickCallback(sparkTrayClicked)
 end
 
@@ -65,10 +80,9 @@ hs.window.filter.new('Cisco Spark')
 -- Delete ansible vault file on sleep
 --------------------------------------------------------
 
-local screenLog = hs.logger.new('screen-log')
+local screenLog = hs.logger.new('screen-log', 'info')
 screenLog.setLogLevel('info')
 
-local screenWatcher = hs.caffeinate.watcher
 function onScreenEvent(event)
     -- screenLog.i(event)
     if event == hs.caffeinate.watcher.systemWillSleep then
@@ -77,5 +91,71 @@ function onScreenEvent(event)
     end
 end
 
+local screenWatcher = hs.caffeinate.watcher
 screenWatcher.new(onScreenEvent):start()
 
+
+--------------------------------------------------------
+-- Monit status tray icon
+--------------------------------------------------------
+-- NOTE: This makes use of the xml2json command: npm install -g xml2json-command
+
+local statusLog = hs.logger.new('status-log', 'info')
+
+local statusTray = hs.menubar.new()
+statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 1, green = 0 }, font = {size=16}}))
+
+-- Replace any $ signs with \$ in config values because we'll be using these in bash commands and without
+-- escaping this will cause problems
+local monit_host = CONFIG['monit']['host']:gsub("%$", "\\$")
+local monit_username = CONFIG['monit']['username']:gsub("%$", "\\$")
+local monit_password = CONFIG['monit']['password']:gsub("%$", "\\$")
+
+hs.timer.doEvery(5, function ()
+    -- Get status from configured Monit host
+    -- We use this using curl so we can pipe the output into xml2json and then deal with json in hammerspoon
+    -- Much easier than to download a lua XML lib and do the parsing that way
+    local command = "curl -su '"..monit_username..":"..monit_password.."' "..
+                    monit_host.."/_status?format=xml | xml2json"
+    local output = hs.execute(command, true)
+    data = hs.json.decode(output)
+
+    -- some helper variables
+    local now_sec = hs.execute('date +%s')
+    local now_full = hs.execute('date "+%Y-%m-%d %H:%M:%S"')
+    local TYPE_LOOKUP = { ["4"] = "service", ["5"] = "system", ["7"] = "program" }
+    local statusTable = { }
+    local overallStatus = 0
+
+    -- Add a menuitem for every service we encounter
+    local services = data['monit']['service']
+    for i = 1, #services do
+      local name = services[i]['name']['$t']
+      local type = services[i]['type']
+      local collected_sec = services[i]['collected_sec']['$t']
+      local time_diff_sec = now_sec - collected_sec
+      local status_code = services[i]['status']['$t']
+      local status = "[OK]"
+      if status_code ~= "0" then
+        status = "[NOK]"
+      end
+      overallStatus = overallStatus + status_code
+
+      local menuItem = "["..TYPE_LOOKUP[type].."] "..name.."  ("..time_diff_sec.."s ago)  "..status
+      -- insert menuItem at i + 2 to account for first two rows
+      statusTable[i] = { title = menuItem, fn = function()
+          hs.urlevent.openURL(monit_host.."/"..name)
+      end }
+    end
+    statusTable[#statusTable + 1] = { title = "-"}
+    statusTable[#statusTable + 1] = { title="Last ran "..now_full, disabled = true}
+
+    -- Modify the status icon based on overallStatus. All OK =  green icon, otherwise = red icon.
+    if overallStatus > 0 then
+      statusTray:setTitle(hs.styledtext.new("●", { color = { red = 1, blue = 0, green = 0 }, font = {size=16}}))
+    else
+      statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 0, green = 1 }, font = {size=16}}))
+    end
+
+    statusTray:setMenu(statusTable)
+end)
