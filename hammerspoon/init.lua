@@ -1,3 +1,6 @@
+-- General note, don't use 'local' variables because those get garbage collected after a while:
+--- https://github.com/Hammerspoon/hammerspoon/issues/1103#issuecomment-264663745
+
 -- Load config from a configfile
 -- Sample:
 -- {
@@ -8,8 +11,8 @@
 --   }
 -- }
 
-local f = io.open(hs.fs.pathToAbsolute("~").."/.hammerspoon-user-config.json", "rb")
-local CONFIG = hs.json.decode(f:read("*all"))
+f = io.open(hs.fs.pathToAbsolute("~").."/.hammerspoon-user-config.json", "rb")
+CONFIG = hs.json.decode(f:read("*all"))
 f:close()
 
 ------------------------------------------------------------
@@ -80,7 +83,7 @@ hs.window.filter.new('Cisco Spark')
 -- Delete ansible vault file on sleep
 --------------------------------------------------------
 
-local screenLog = hs.logger.new('screen-log', 'info')
+screenLog = hs.logger.new('screen-log', 'info')
 screenLog.setLogLevel('info')
 
 function onScreenEvent(event)
@@ -91,7 +94,7 @@ function onScreenEvent(event)
     end
 end
 
-local screenWatcher = hs.caffeinate.watcher
+screenWatcher = hs.caffeinate.watcher
 screenWatcher.new(onScreenEvent):start()
 
 
@@ -100,51 +103,65 @@ screenWatcher.new(onScreenEvent):start()
 --------------------------------------------------------
 -- NOTE: This makes use of the xml2json command: npm install -g xml2json-command
 
-local statusLog = hs.logger.new('status-log', 'info')
+statusLog = hs.logger.new('status-log', 'info')
 
-local statusTray = hs.menubar.new()
+statusTray = hs.menubar.new()
 statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 1, green = 0 }, font = {size=16}}))
 
 -- Replace any $ signs with \$ in config values because we'll be using these in bash commands and without
 -- escaping this will cause problems
-local monit_host = CONFIG['monit']['host']:gsub("%$", "\\$")
-local monit_username = CONFIG['monit']['username']:gsub("%$", "\\$")
-local monit_password = CONFIG['monit']['password']:gsub("%$", "\\$")
+monit_host = CONFIG['monit']['host']:gsub("%$", "\\$")
+monit_username = CONFIG['monit']['username']:gsub("%$", "\\$")
+monit_password = CONFIG['monit']['password']:gsub("%$", "\\$")
 
-hs.timer.doEvery(5, function ()
+
+statusTimer = hs.timer.new(5, function ()
+    statusLog.i("Running timer")
     -- Get status from configured Monit host
     -- We use this using curl so we can pipe the output into xml2json and then deal with json in hammerspoon
     -- Much easier than to download a lua XML lib and do the parsing that way
-    local command = "curl -su '"..monit_username..":"..monit_password.."' "..
+    -- curl options: -s -> silent (no download bar), -m 1 -> 1 second timeout
+    command = "curl -m 1 -su '"..monit_username..":"..monit_password.."' "..
                     monit_host.."/_status?format=xml | xml2json"
-    local output = hs.execute(command, true)
+    output = hs.execute(command, true)
     data = hs.json.decode(output)
+    if data['monit'] == nil or data['monit']['service'] == nil then
+      statusLog.i("No data received from monit, skipping iteration")
+      statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 1, green = 0 }, font = {size=16}}))
+      return
+    else
+      statusLog.i("Data received")
+    end
 
     -- some helper variables
-    local now_sec = hs.execute('date +%s')
-    local now_full = hs.execute('date "+%Y-%m-%d %H:%M:%S"')
-    local TYPE_LOOKUP = { ["4"] = "service", ["5"] = "system", ["7"] = "program" }
-    local statusTable = { }
-    local overallStatus = 0
-
+    now_sec = hs.execute('date +%s')
+    now_full = hs.execute('date "+%Y-%m-%d %H:%M:%S"')
+    TYPE_LOOKUP = { ["4"] = "service", ["5"] = "system", ["7"] = "program" }
+    statusTable = { }
+    overallStatus = 0
+    urlTable = {}
     -- Add a menuitem for every service we encounter
-    local services = data['monit']['service']
+    services = data['monit']['service']
     for i = 1, #services do
-      local name = services[i]['name']['$t']
-      local type = services[i]['type']
-      local collected_sec = services[i]['collected_sec']['$t']
-      local time_diff_sec = now_sec - collected_sec
-      local status_code = services[i]['status']['$t']
-      local status = "[OK]"
+
+      -- statusLog.i(hs.inspect.inspect(services[i]))
+      name = services[i]['name']
+      typeField = services[i]['type']
+      collected_sec = services[i]['collected_sec']
+      time_diff_sec = now_sec - collected_sec
+      status_code = services[i]['status']
+      status = "[OK]"
       if status_code ~= "0" then
         status = "[NOK]"
       end
       overallStatus = overallStatus + status_code
 
-      local menuItem = "["..TYPE_LOOKUP[type].."] "..name.."  ("..time_diff_sec.."s ago)  "..status
+      menuItem = "["..TYPE_LOOKUP[typeField].."] "..name.."  ("..time_diff_sec.."s ago)  "..status
+
       -- insert menuItem at i + 2 to account for first two rows
-      statusTable[i] = { title = menuItem, fn = function()
-          hs.urlevent.openURL(monit_host.."/"..name)
+      statusTable[i] = { title = menuItem, url=monit_host.."/"..name, fn = function(keyModifiers, source)
+          statusLog.i(hs.inspect.inspect(source))
+          hs.urlevent.openURL(source.url)
       end }
     end
     statusTable[#statusTable + 1] = { title = "-"}
@@ -158,4 +175,7 @@ hs.timer.doEvery(5, function ()
     end
 
     statusTray:setMenu(statusTable)
-end)
+    statusLog.i("end of timer function")
+end,true) -- true => continueOnError
+
+statusTimer:start()
