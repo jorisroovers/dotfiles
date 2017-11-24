@@ -4,11 +4,14 @@
 -- Load config from a configfile
 -- Sample:
 -- {
---   "monit": {
+--   "sensu": {
 --     "username": "foo",
 --     "password": "bar,
---     "host": "http://10.0.01:1234"
---   }
+--     "host": "http://10.0.0.1:1234"
+--   },
+--   "uchiwa": {
+--        "host": "http://10.0.0.1:5678"
+--    }
 -- }
 
 f = io.open(hs.fs.pathToAbsolute("~").."/.hammerspoon-user-config.json", "rb")
@@ -99,9 +102,8 @@ screenWatcher.new(onScreenEvent):start()
 
 
 --------------------------------------------------------
--- Monit status tray icon
+-- Sensu status tray icon
 --------------------------------------------------------
--- NOTE: This makes use of the xml2json command: npm install -g xml2json-command
 
 statusLog = hs.logger.new('status-log', 'info')
 
@@ -110,23 +112,21 @@ statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 1, gree
 
 -- Replace any $ signs with \$ in config values because we'll be using these in bash commands and without
 -- escaping this will cause problems
-monit_host = CONFIG['monit']['host']:gsub("%$", "\\$")
-monit_username = CONFIG['monit']['username']:gsub("%$", "\\$")
-monit_password = CONFIG['monit']['password']:gsub("%$", "\\$")
 
+sensu_host = CONFIG['sensu']['host']:gsub("%$", "\\$")
+sensu_username = CONFIG['sensu']['username']:gsub("%$", "\\$")
+sensu_password = CONFIG['sensu']['password']:gsub("%$", "\\$")
+uchiwa_host = CONFIG['uchiwa']['host']:gsub("%$", "\\$")
 
 statusTimer = hs.timer.new(5, function ()
     statusLog.i("Running timer")
-    -- Get status from configured Monit host
-    -- We use this using curl so we can pipe the output into xml2json and then deal with json in hammerspoon
-    -- Much easier than to download a lua XML lib and do the parsing that way
     -- curl options: -s -> silent (no download bar), -m 1 -> 1 second timeout
-    command = "curl -m 1 -su '"..monit_username..":"..monit_password.."' "..
-                    monit_host.."/_status?format=xml | xml2json"
+    command = "curl -m 1 -su '"..sensu_username..":"..sensu_password.."' "..
+                    sensu_host.."/results/casa-client"
     output = hs.execute(command, true)
     data = hs.json.decode(output)
-    if data['monit'] == nil or data['monit']['service'] == nil then
-      statusLog.i("No data received from monit, skipping iteration")
+    if data == nil then
+      statusLog.i("No data received from sensu, skipping iteration")
       statusTray:setTitle(hs.styledtext.new("●", { color = { red = 0, blue = 1, green = 0 }, font = {size=16}}))
       return
     else
@@ -136,33 +136,31 @@ statusTimer = hs.timer.new(5, function ()
     -- some helper variables
     now_sec = hs.execute('date +%s')
     now_full = hs.execute('date "+%Y-%m-%d %H:%M:%S"')
-    TYPE_LOOKUP = { ["4"] = "service", ["5"] = "system", ["7"] = "program" }
     statusTable = { }
     overallStatus = 0
     urlTable = {}
-    -- Add a menuitem for every service we encounter
-    services = data['monit']['service']
-    for i = 1, #services do
+    -- Add a menuitem for every check we encounter
+    checks = data
+    for i = 1, #checks do
 
-      -- statusLog.i(hs.inspect.inspect(services[i]))
-      name = services[i]['name']
-      typeField = services[i]['type']
-      collected_sec = services[i]['collected_sec']
-      time_diff_sec = now_sec - collected_sec
-      status_code = services[i]['status']
-      status = "[OK]"
-      if status_code ~= "0" then
-        status = "[NOK]"
-      end
-      overallStatus = overallStatus + status_code
+        check = checks[i]['check']
+        name = check['name']
+        collected_sec = check['executed']
+        time_diff_sec = now_sec - collected_sec
+        status_code = check['status']
+        status =  hs.styledtext.new("●", { color = { red = 0, blue = 0, green = 1 }, font = {size=16}})
+        if status_code ~= 0 then
+            status =  hs.styledtext.new("●", { color = { red = 1, blue = 0, green = 0 }, font = {size=16}})
+        end
+        overallStatus = overallStatus + status_code
 
-      menuItem = "["..TYPE_LOOKUP[typeField].."] "..name.."  ("..time_diff_sec.."s ago)  "..status
+        menuItem = status..hs.styledtext.new(" "..name.." ("..time_diff_sec.."s ago) ", {font = {size=16}})
 
-      -- insert menuItem at i + 2 to account for first two rows
-      statusTable[i] = { title = menuItem, url=monit_host.."/"..name, fn = function(keyModifiers, source)
-          statusLog.i(hs.inspect.inspect(source))
-          hs.urlevent.openURL(source.url)
-      end }
+        -- insert menuItem at i + 2 to account for first two rows
+        uchiwa_url = uchiwa_host.."#/client/casa/"..checks[i]['client'].."?check="..name
+        statusTable[i] = { title = menuItem, url=uchiwa_url, fn = function(keyModifiers, source)
+            hs.urlevent.openURL(source.url)
+        end }
     end
     statusTable[#statusTable + 1] = { title = "-"}
     statusTable[#statusTable + 1] = { title="Last ran "..now_full, disabled = true}
