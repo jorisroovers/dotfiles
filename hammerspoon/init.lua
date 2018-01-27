@@ -158,10 +158,19 @@ statusTimer = hs.timer.new(5, function ()
 
         -- insert menuItem at i + 2 to account for first two rows
         uchiwa_url = uchiwa_host.."#/client/casa/"..checks[i]['client'].."?check="..name
-        statusTable[i] = { title = menuItem, url=uchiwa_url, fn = function(keyModifiers, source)
+        statusTable[i] = { title = menuItem, name=name, url=uchiwa_url, fn = function(keyModifiers, source)
             hs.urlevent.openURL(source.url)
         end }
     end
+
+    -- sort status table alphabetically
+    table.sort(statusTable, function(item1, item2)
+        -- String comparison in Lua is based on ASCII order so we need to make both strings lower-case,
+        -- otherwise strings starting with capitals will be sorted in front of those without (as capital letters come
+        -- first in the ASCII table)
+        return string.lower(item1.name) <= string.lower(item2.name)
+    end )
+
     statusTable[#statusTable + 1] = { title = "-"}
     statusTable[#statusTable + 1] = { title="Last ran "..now_full, disabled = true}
 
