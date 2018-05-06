@@ -141,6 +141,7 @@ statusTimer = hs.timer.new(5, function ()
     urlTable = {}
     -- Add a menuitem for every check we encounter
     checks = data
+    -- statusLog.i(hs.inspect.inspect(checks))
     for i = 1, #checks do
 
         check = checks[i]['check']
@@ -168,7 +169,9 @@ statusTimer = hs.timer.new(5, function ()
         -- String comparison in Lua is based on ASCII order so we need to make both strings lower-case,
         -- otherwise strings starting with capitals will be sorted in front of those without (as capital letters come
         -- first in the ASCII table)
-        return string.lower(item1.name) <= string.lower(item2.name)
+        -- Note also that the comparison has to be strict (equal strings should return false when compared)
+        -- otherwise Lua will error with: "invalid order function"
+        return string.lower(item1.name) < string.lower(item2.name)
     end )
 
     statusTable[#statusTable + 1] = { title = "-"}
