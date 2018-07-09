@@ -189,3 +189,16 @@ statusTimer = hs.timer.new(5, function ()
 end,true) -- true => continueOnError
 
 statusTimer:start()
+
+
+--------------------------------------------------------
+-- Boostnote insert date hotkey
+--------------------------------------------------------
+
+todayHotkey = hs.hotkey.new('ctrl', ';', function()
+    hs.eventtap.keyStrokes(os.date("%Y-%M-%d"))
+end)
+--
+hs.window.filter.new('Boostnote')
+  :subscribe(hs.window.filter.windowFocused,function() todayHotkey:enable() end)
+  :subscribe(hs.window.filter.windowUnfocused,function() todayHotkey:disable() end)
