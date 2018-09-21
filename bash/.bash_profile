@@ -1,6 +1,11 @@
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# Length of terminal history
+# https://askubuntu.com/questions/1006075/increase-reverse-i-search-history-length
+HISTSIZE=1000  # history of a single terminal session, saved in RAM
+HISTFILESIZE=10000 # size of the history file, usually ~/.bash_history). 
+
 # show current git branch in commandline prompt and take existing coloring
 # and changes into account (e.g. .venv)
 # http://martinvalasek.com/blog/current-git-branch-name-in-command-prompt
@@ -30,8 +35,11 @@ alias vup='vagrant up'
 alias vssh='vagrant ssh'
 alias vd='vagrant destroy -f'
 
-alias hass="ssh joris@192.168.1.121"
-alias cec="export CEC_USERNAME=jroovers; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
+export HASS_IP="<REDACTED>"
+alias hass="ssh <REDACTED>@$HASS_IP"
+alias casa="hass"
+alias rpi="ssh joris@<REDACTED>"
+alias cec="export CEC_USERNAME=<REDACTED>; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
 
 # Adds colors to grep on mac
 # http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
@@ -44,4 +52,34 @@ export PATH="/anaconda/bin:$PATH"
 # added etcher-cli to PATH: https://etcher.io/cli/
 export PATH="$PATH:/opt/etcher-cli"
 
-alias cat='ccat'
+alias cat='bat'
+
+# Ansible
+export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
+export PGM_KEY_FILE="~/keys/pgm.pem"
+
+export PATH="$HOME/.cargo/bin:$PATH"
+
+alias casa-pass="ansible-vault view <host_inventory_file>  | awk '/ansible_sudo_pass: /{print \$2}' | tr -d '\"' | pbcopy"
+alias rpi-pass="ansible-vault view <host_inventory_file>  | awk '/ansible_sudo_pass: /{print \$2}' | tr -d '\"' | pbcopy"
+alias honcho="cd ~/repos/honcho; open 'http://localhost:8000'; watchexec --exts rs,css,hbs --restart 'cargo run'";
+
+function vault-get(){
+  local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
+  echo "$VAULT" | awk "/$1: /{print \$2}" | tr -d '\"'
+}
+
+function vault-search(){
+  local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
+  echo "$VAULT" | grep "$1"
+}
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# fzf: https://github.com/junegunn/fzf
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+source /Users/jroovers/.gvm/scripts/gvm
+

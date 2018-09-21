@@ -39,6 +39,9 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 " instead of NerdTree)
 autocmd VimEnter * wincmd p
 "autocmd BufNew * wincmd p 
+" Show hidden files by default
+let NERDTreeShowHidden=1
+
 
 " Set some convenience commands for NerdTree
 " nnoremap -> first n -> normal mode (Vim also has visual and insert mode)
