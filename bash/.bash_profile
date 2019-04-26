@@ -35,11 +35,14 @@ alias vup='vagrant up'
 alias vssh='vagrant ssh'
 alias vd='vagrant destroy -f'
 
-export HASS_IP="<REDACTED>"
-alias hass="ssh <REDACTED>@$HASS_IP"
+export HASS_IP="<redacted>"
+export RPI_IP="<redacted>"
+export RPITV_IP="<redacted>"
+alias hass="ssh joris@$HASS_IP"
 alias casa="hass"
-alias rpi="ssh joris@<REDACTED>"
-alias cec="export CEC_USERNAME=<REDACTED>; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
+alias rpi="ssh joris@$RPI_IP"
+alias rpitv="ssh joris@$RPITV_IP"
+alias cec="export CEC_USERNAME=<redacted>; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
 
 # Adds colors to grep on mac
 # http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
@@ -50,9 +53,11 @@ export GREP_COLOR='1;35;40'
 export PATH="/anaconda/bin:$PATH"
 
 # added etcher-cli to PATH: https://etcher.io/cli/
-export PATH="$PATH:/opt/etcher-cli"
+# export PATH="$PATH:/opt/etcher-cli"
 
 alias cat='bat'
+alias code="code-insiders"
+alias vscode="code-insiders"
 
 # Ansible
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
@@ -60,8 +65,6 @@ export PGM_KEY_FILE="~/keys/pgm.pem"
 
 export PATH="$HOME/.cargo/bin:$PATH"
 
-alias casa-pass="ansible-vault view <host_inventory_file>  | awk '/ansible_sudo_pass: /{print \$2}' | tr -d '\"' | pbcopy"
-alias rpi-pass="ansible-vault view <host_inventory_file>  | awk '/ansible_sudo_pass: /{print \$2}' | tr -d '\"' | pbcopy"
 alias honcho="cd ~/repos/honcho; open 'http://localhost:8000'; watchexec --exts rs,css,hbs --restart 'cargo run'";
 
 function vault-get(){
@@ -83,3 +86,4 @@ export NVM_DIR="$HOME/.nvm"
 
 source /Users/jroovers/.gvm/scripts/gvm
 
+export PATH="/usr/local/opt/curl/bin:$PATH"
