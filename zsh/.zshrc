@@ -1,7 +1,21 @@
-### ENCODING ############################################################################################################
+### ENCODING ###########################################################################################################
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+
+### OH-MY-ZSH ##########################################################################################################
+# oh-my-zsh needs to be near the top of .zshrc since it changes the shell itself. If you do this lower down in the file
+# it will just overwrite any other changes you've made to the oh-my-zsh defaults.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="agnoster" # super slow?
+plugins=(git)
+source $ZSH/oh-my-zsh.sh
+
+# Disable some agnoster theme things we don't use and that make it very slow
+prompt_context(){}
+prompt_hg(){} # hg (=mercurial) in particular is superslow. Mercurial is required by https://github.com/moovweb/gvm
+prompt_bzr(){}
+prompt_aws(){}
 
 ### TERMINAL HISTORY ###################################################################################################
 
@@ -10,59 +24,8 @@ export LANG=en_US.UTF-8
 HISTSIZE=1000  # history of a single terminal session, saved in RAM
 HISTFILESIZE=10000 # size of the history file, usually ~/.bash_history). 
 
-### GIT ###############################################################################################################
-
-# show current git branch in commandline prompt and take existing coloring
-# and changes into account (e.g. .venv)
-# http://martinvalasek.com/blog/current-git-branch-name-in-command-prompt
-# If colors are enabled in git output, we run into an ugly bash escaping issue
-# The post below provides details:
-# https://stackoverflow.com/questions/19092488/custom-bash-prompt-is-overwriting-itself#
-# Instead of extra escaping (which doesn't seem to fully solve the problem), we
-# just force git branch to not use any colors
-
-function parse_git_branch () {
-  git -c color.ui=false branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
-
-RED="\[\033[0;31m\]"
-YELLOW="\[\033[0;33m\]"
-GREEN="\[\033[0;32m\]"
-NO_COLOR="\[\033[0m\]"
-
-PS1="$GREEN\$$NO_COLOR\w$YELLOW\$(parse_git_branch)$NO_COLOR\$ "
-
-### ALIASES  ###########################################################################################################
-
-alias cat='bat' # https://github.com/sharkdp/bat
-alias code="code-insiders"
-alias vscode="code-insiders"
-alias ls="lsd"  # https://github.com/Peltoche/lsdexport HASS_IP="<redacted>"
-
-# Vagrant
-alias v='vagrant'
-alias vs='vagrant status'
-alias vgs='vagrant global-status'
-alias vss='vagrant ssh'
-alias vup='vagrant up'
-alias vssh='vagrant ssh'
-alias vd='vagrant destroy -f'
-
-
-# Home automation
-export RPI_IP="<redacted>"
-export RPITV_IP="<redacted>"
-alias hass="ssh joris@$HASS_IP"
-alias casa="hass"
-alias rpi="ssh joris@$RPI_IP"
-alias rpitv="ssh joris@$RPITV_IP"
-
-# Cisco
-alias cec="export CEC_USERNAME=<redacted>; read -s -p 'CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
-
 ### ANSIBLE  ###########################################################################################################
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
-
 
 function vault-get(){
   local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
@@ -73,6 +36,39 @@ function vault-search(){
   local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
   echo "$VAULT" | grep "$1"
 }
+
+function ansible-host(){
+  ansible-inventory -i ~/repos/casa-data/inventory/prod --list | jq -r ."$1.hosts[0]"
+}
+
+### ALIASES  ###########################################################################################################
+alias reload='exec zsh'
+
+alias cat='bat' # https://github.com/sharkdp/bat
+alias code="code-insiders"
+alias vscode="code-insiders"
+alias ls="lsd"  # https://github.com/Peltoche/lsdexport 
+
+# Vagrant
+alias v='vagrant'
+alias vs='vagrant status'
+alias vgs='vagrant global-status'
+alias vss='vagrant ssh'
+alias vup='vagrant up'
+alias vssh='vagrant ssh'
+alias vd='vagrant destroy -f'
+
+# Home automation
+export HASS_IP="$(ansible-host controller)"
+export RPI_IP="$(ansible-host energy_tracker)"
+export RPITV_IP="$(ansible-host tv_controller)"
+alias hass="ssh joris@$HASS_IP"
+alias casa="hass"
+alias rpi="ssh joris@$RPI_IP"
+alias rpitv="ssh joris@$RPITV_IP"
+
+# Cisco
+alias cec="export CEC_USERNAME=$(whoami); read -s '?CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
 
 ### PATH ###############################################################################################################
 
@@ -99,7 +95,7 @@ eval "$(pyenv init -)"
 
 # fzf: https://github.com/junegunn/fzf
 FZF_DEFAULT_OPTS="--history-size=3000"
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export PGM_KEY_FILE="~/keys/pgm.pem"
 alias honcho="cd ~/repos/honcho; open 'http://localhost:8000'; watchexec --exts rs,css,hbs --restart 'cargo run'";

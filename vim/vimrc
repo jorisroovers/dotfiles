@@ -29,15 +29,15 @@ set splitright
 
 "  = NerdTree =
 " NerdTree specific customizations
-autocmd vimenter * NERDTree 
+" autocmd vimenter * NERDTree 
 " Open NerdTree every time a file is opened
-autocmd vimenter * if !argc() | NERDTree | endif 
+" autocmd vimenter * if !argc() | NERDTree | endif 
 " Open NerdTree even if no file is specified
 " Automatically close NerdTree if it is the only remaining window
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 " Automatically jump to the window that was just opened (so that it is active
 " instead of NerdTree)
-autocmd VimEnter * wincmd p
+" autocmd VimEnter * wincmd p
 "autocmd BufNew * wincmd p 
 " Show hidden files by default
 let NERDTreeShowHidden=1
@@ -61,7 +61,7 @@ nnoremap <leader>n :set invnumber<CR>
 nnoremap <Leader>q ciw""<Esc>P
 
 " Set ,c as shortcut for Conque
-nnoremap <leader>c :5split<CR>:ConqueTerm bash<CR>
+" nnoremap <leader>c :5split<CR>:ConqueTerm bash<CR>
 
 " Help toggle function
 let g:help_is_open = 0
