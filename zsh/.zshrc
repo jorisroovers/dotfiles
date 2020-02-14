@@ -37,9 +37,16 @@ function vault-search(){
   echo "$VAULT" | grep "$1"
 }
 
+# Get host IP. Usage: ansible-host <hostname>
 function ansible-host(){
   ansible-inventory -i ~/repos/casa-data/inventory/prod --list | jq -r ."$1.hosts[0]"
 }
+
+# Get variable for a given host. Usage: ansible-inventory-get <host> <varname>
+function ansible-inventory-get(){
+  ansible-inventory -i ~/repos/casa-data/inventory/prod --host $1 | jq -r .$2
+}
+
 
 ### ALIASES  ###########################################################################################################
 alias reload='exec zsh'
@@ -66,9 +73,16 @@ alias hass="ssh joris@$HASS_IP"
 alias casa="hass"
 alias rpi="ssh joris@$RPI_IP"
 alias rpitv="ssh joris@$RPITV_IP"
+alias starkeeper="ssh root@192.168.1.1"
+
+alias casa-pass="ansible-inventory-get controller ansible_sudo_pass | pbcopy"
+alias rpi-pass="ansible-inventory-get energy_tracker ansible_sudo_pass | pbcopy"
+alias rpitv-pass="ansible-inventory-get tv_controller ansible_sudo_pass | pbcopy"
+
 
 # Cisco
 alias cec="export CEC_USERNAME=$(whoami); read -s '?CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
+
 
 ### PATH ###############################################################################################################
 
