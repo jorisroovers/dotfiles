@@ -52,6 +52,7 @@ function ansible-inventory-get(){
 alias reload='exec zsh'
 
 alias cat='bat' # https://github.com/sharkdp/bat
+alias find='fd' # https://github.com/sharkdp/fd
 alias code="code-insiders"
 alias vscode="code-insiders"
 alias ls="lsd"  # https://github.com/Peltoche/lsdexport 
@@ -106,6 +107,8 @@ export NVM_DIR="$HOME/.nvm"
 eval "$(pyenv init -)"
 
 ### MISC ###############################################################################################################
+# Disable auto cd
+unsetopt AUTO_CD
 
 # fzf: https://github.com/junegunn/fzf
 FZF_DEFAULT_OPTS="--history-size=3000"
@@ -118,3 +121,4 @@ alias honcho="cd ~/repos/honcho; open 'http://localhost:8000'; watchexec --exts 
 # http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;35;40'
+
