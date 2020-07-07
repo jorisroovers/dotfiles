@@ -70,16 +70,18 @@ alias vd='vagrant destroy -f'
 export HASS_IP="$(ansible-host controller)"
 export RPI_IP="$(ansible-host energy_tracker)"
 export RPITV_IP="$(ansible-host tv_controller)"
+
 alias hass="ssh joris@$HASS_IP"
 alias casa="hass"
 alias rpi="ssh joris@$RPI_IP"
 alias rpitv="ssh joris@$RPITV_IP"
+alias octopi="ssh joris@octopi.local"
 alias starkeeper="ssh root@192.168.1.1"
 
 alias casa-pass="ansible-inventory-get controller ansible_sudo_pass | pbcopy"
 alias rpi-pass="ansible-inventory-get energy_tracker ansible_sudo_pass | pbcopy"
 alias rpitv-pass="ansible-inventory-get tv_controller ansible_sudo_pass | pbcopy"
-
+alias octopi-pass="ansible-inventory-get octopi ansible_sudo_pass | pbcopy"
 
 # Cisco
 alias cec="export CEC_USERNAME=$(whoami); read -s '?CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
