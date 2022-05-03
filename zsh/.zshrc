@@ -51,11 +51,21 @@ function ansible-inventory-get(){
 ### ALIASES  ###########################################################################################################
 alias reload='exec zsh'
 
-alias cat='bat' # https://github.com/sharkdp/bat
-alias find='fd' # https://github.com/sharkdp/fd
+# Program overrides
+alias cat='bat'  # https://github.com/sharkdp/bat
+#alias find='fd' # https://github.com/sharkdp/fd
+alias ls="lsd"   # https://github.com/Peltoche/lsdexport 
+
+# Program aliases
+alias excel="open -a 'Microsoft Excel'"
 alias code="code-insiders"
 alias vscode="code-insiders"
-alias ls="lsd"  # https://github.com/Peltoche/lsdexport 
+
+# Useful shortcuts
+# Find in environment variables
+alias cenv="env | grep -i "
+# Trim whitespace from the beginning and end of a string
+alias trim="python -c \"import sys; print('\n'.join([l.strip() for l in sys.stdin]))\""
 
 # Vagrant
 alias v='vagrant'
@@ -67,30 +77,31 @@ alias vssh='vagrant ssh'
 alias vd='vagrant destroy -f'
 
 # Home automation
-export HASS_IP="$(ansible-host controller)"
-export RPI_IP="$(ansible-host energy_tracker)"
-export RPITV_IP="$(ansible-host tv_controller)"
+#export RPI_IP="$(ansible-host energy_tracker)"
+#export RPITV_IP="$(ansible-host tv_controller)"
 
-alias hass="ssh joris@$HASS_IP"
-alias casa="hass"
-alias rpi="ssh joris@$RPI_IP"
-alias rpitv="ssh joris@$RPITV_IP"
-alias octopi="ssh joris@octopi.local"
-alias starkeeper="ssh root@192.168.1.1"
+#alias rpi="ssh joris@$RPI_IP"
+#alias rpitv="ssh joris@$RPITV_IP"
+#alias octopi="ssh joris@octopi.local"
 
-alias casa-pass="ansible-inventory-get controller ansible_sudo_pass | pbcopy"
-alias rpi-pass="ansible-inventory-get energy_tracker ansible_sudo_pass | pbcopy"
-alias rpitv-pass="ansible-inventory-get tv_controller ansible_sudo_pass | pbcopy"
-alias octopi-pass="ansible-inventory-get octopi ansible_sudo_pass | pbcopy"
+#alias casa-pass="ansible-inventory-get controller ansible_sudo_pass | pbcopy"
+#alias rpi-pass="ansible-inventory-get energy_tracker ansible_sudo_pass | pbcopy"
+#alias rpitv-pass="ansible-inventory-get tv_controller ansible_sudo_pass | pbcopy"
+#alias octopi-pass="ansible-inventory-get octopi ansible_sudo_pass | pbcopy"
 
 # Cisco
 alias cec="export CEC_USERNAME=$(whoami); read -s '?CEC PASSWORD: ' CEC_PASSWORD; export CEC_PASSWORD=\$CEC_PASSWORD; echo -e '\nEnvironment variables CEC_USERNAME and CEC_PASSWORD set.'"
+alias produsa="export PRODUSA_USERNAME=$(whoami); read -s '?PRODUSA_PASSWORD: ' PRODUSA_PASSWORD; export PRODUSA_PASSWORD=\$PRODUSA_PASSWORD; echo -e '\nEnvironment variables PRODUSA_USERNAME and PRODUSA_PASSWORD set.'"
 
+alias jumphost="ssh iotcc_jumphost"
+alias fjump="pkill ssh;ssh iotcc_jumphost -fN"
 
 ### PATH ###############################################################################################################
 
 export PATH="/usr/local/opt/curl/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
+# Needed for pipx (can be added by `pipx ensurepath`)
+export PATH="$PATH:/Users/jroovers/.local/bin"
 
 ### VERSION MANAGERS ###################################################################################################
 
@@ -108,6 +119,9 @@ export NVM_DIR="$HOME/.nvm"
 # pyenv (Python): https://github.com/pyenv/pyenv
 eval "$(pyenv init -)"
 
+# Ensure pip will only install in virtualenvs
+export PIP_REQUIRE_VIRTUALENV=true
+
 ### MISC ###############################################################################################################
 # Disable auto cd
 unsetopt AUTO_CD
@@ -117,10 +131,8 @@ FZF_DEFAULT_OPTS="--history-size=3000"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export PGM_KEY_FILE="~/keys/pgm.pem"
-alias honcho="cd ~/repos/honcho; open 'http://localhost:8000'; watchexec --exts rs,css,hbs --restart 'cargo run'";
 
 # Adds colors to grep on mac
 # http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;35;40'
-
