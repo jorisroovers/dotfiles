@@ -1,0 +1,38 @@
+# vim: ft:gitconfig
+[user]
+	name = Joris Roovers
+	email = <redacted>
+[core]
+	excludesfile = ~/.gitignore_global
+    editor = vim
+    autocrlf = input
+    pager = delta
+
+    #pager = "diff-so-fancy | less --tabs=4 -RFX"
+[color]
+    # ui = auto will always use color unless you are piping the output to
+    # another command, in which case no color is used
+    ui = auto
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22 reverse
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+
+[includeIf "gitdir:~/work-git/"]
+    path = ~/work-git/.workgitconfig
+
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
