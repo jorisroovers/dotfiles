@@ -15,19 +15,7 @@ config_gnome_terminal(){
     --type bool true
 }
 
-download_pycharm(){
-    wget -O ~/Downloads/pycharm-community-3.4.1.tar.gz \ 
-        http://download.jetbrains.com/python/pycharm-community-3.4.1.tar.gz
-}
-
-
-
 echo "Configuring gedit.."
 config_gedit
 config_gnome_terminal
 echo "DONE"
-# There are some measures in place that prevent us to download pycharm
-# automatically, so we don't do it for now.
-#echo "Downloading pycharm"
-#download_pycharm
-#echo "DONE"
