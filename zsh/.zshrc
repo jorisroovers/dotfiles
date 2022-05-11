@@ -1,5 +1,5 @@
 ### ENCODING ###########################################################################################################
-
+ 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
@@ -47,7 +47,7 @@ alias excel="open -a 'Microsoft Excel'"
 alias code="code-insiders"
 alias vscode="code-insiders"
 
-# Find in environment variables, redact passwords
+# Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
 cenv(){
   env | grep -i $1 |  \
   sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
@@ -75,7 +75,7 @@ alias vgs='vagrant global-status'
 alias vss='vagrant ssh'
 alias vup='vagrant up'
 alias vssh='vagrant ssh'
-alias vd='vagrant destroy -f'
+#alias vd='vagrant destroy -f' # conflicts with visidata
 
 # Home automation
 #export RPI_IP="$(ansible-host energy_tracker)"
@@ -90,6 +90,15 @@ alias vd='vagrant destroy -f'
 #alias rpitv-pass="ansible-inventory-get tv_controller ansible_sudo_pass | pbcopy"
 #alias octopi-pass="ansible-inventory-get octopi ansible_sudo_pass | pbcopy"
 
+# TODO: figure out shorthand for sourcing files
+# ls -R ~/.rc | fzf
+alias myfoo="source ~/.rc/ldap/test"
+
+# Unset env vars based on regex matching (case insensitive)
+unsetall(){
+  unset $(cenv $1 | awk -F "=" '{print $1}')
+}
+
 ### WORK ###############################################################################################################
 
 [ -f ~/.workrc ] && source ~/.workrc
@@ -99,10 +108,11 @@ alias vd='vagrant destroy -f'
 # GVM (Go): https://github.com/moovweb/gvm
 source ~/.gvm/scripts/gvm
 
+# SLOW?
 # NVM (Node): https://github.com/nvm-sh/nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # RVM (Ruby): https://rvm.io/
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
@@ -116,6 +126,9 @@ export PIP_REQUIRE_VIRTUALENV=true
 ### MISC ###############################################################################################################
 # Disable auto cd
 unsetopt AUTO_CD
+
+# Allow '#' to be used as a comment character in shell sessions
+setopt interactivecomments
 
 # fzf: https://github.com/junegunn/fzf
 FZF_DEFAULT_OPTS="--history-size=3000"
@@ -135,14 +148,11 @@ if [ $TERM_PROGRAM != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config ~/.joris.omp.json)"
 fi
 
-# export STARSHIP_CONFIG=~/.starship.toml
-# eval "$(starship init zsh)"
-
-
 ### PATH ###############################################################################################################
 
 export PATH="/usr/local/opt/curl/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 # Needed for pipx (can be added by `pipx ensurepath`)
-export PATH="$PATH:/Users/jroovers/.local/bin"
-export PATH="/Users/jroovers/.rd/bin:$PATH"
+export PATH="$PATH:$HOME/.local/bin"
+# Rancher Desktop
+export PATH="$HOME/.rd/bin:$PATH"

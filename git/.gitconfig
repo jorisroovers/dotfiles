@@ -1,7 +1,7 @@
 # vim: ft:gitconfig
-[user]
-	name = Joris Roovers
-	email = <redacted>
+[include]
+    path = ~/.gituserinfo
+
 [core]
 	excludesfile = ~/.gitignore_global
     editor = vim
@@ -13,6 +13,11 @@
     # ui = auto will always use color unless you are piping the output to
     # another command, in which case no color is used
     ui = auto
+
+[pull]
+    # Good explanation on why to use --ff-only:
+    # https://blog.sffc.xyz/post/185195398930/why-you-should-use-git-pull-ff-only-git-is-a
+	ff = only
 
 [interactive]
     diffFilter = delta --color-only
