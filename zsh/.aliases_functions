@@ -1,0 +1,126 @@
+### SHELL UTILITIES ####################################################################################################
+alias reload='exec zsh'
+
+# TODO: figure out shorthand for sourcing files
+# ls -R ~/.rc | fzf
+alias myfoo="source ~/.rc/ldap/test"
+# seq 1 5 | fzf --height 10
+
+# Unset env vars based on regex matching (case insensitive)
+unsetall(){
+  unset $(cenv $1 | awk -F "=" '{print $1}')
+}
+
+# Shows definition of passed alias or function
+define(){
+  type $1
+  declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
+}
+
+### ANSIBLE  ###########################################################################################################
+export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
+
+function vault-get(){
+  local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
+  echo "$VAULT" | awk "/$1: /{print \$2}" | tr -d '\"'
+}
+
+function vault-search(){
+  local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
+  echo "$VAULT" | grep "$1"
+}
+
+# Get host IP. Usage: ansible-host <hostname>
+function ansible-host(){
+  ansible-inventory -i ~/repos/casa-data/inventory/prod --list | jq -r ."$1.hosts[0]"
+}
+
+# Get variable for a given host. Usage: ansible-inventory-get <host> <varname>
+function ansible-inventory-get(){
+  ansible-inventory -i ~/repos/casa-data/inventory/prod --host $1 | jq -r .$2
+}
+
+### VAGRANT  ###########################################################################################################
+# Vagrant
+alias v='vagrant'
+alias vs='vagrant status'
+alias vgs='vagrant global-status'
+alias vss='vagrant ssh'
+alias vup='vagrant up'
+alias vssh='vagrant ssh'
+#alias vd='vagrant destroy -f' # conflicts with visidata
+
+### Device42  ##########################################################################################################
+
+# Device 42
+d42get(){    curl -s -k -u "$D42_USERNAME:$D42_PASSWORD" "$D42_BASE_URL$@"}
+d42post(){   curl -s -k -u "$D42_USERNAME:$D42_PASSWORD" -X POST "$D42_BASE_URL$@"}
+d42put(){    curl -k -u "$D42_USERNAME:$D42_PASSWORD"  -X PUT "$D42_BASE_URL$@"}
+d42delete(){ curl -k -u "$D42_USERNAME:$D42_PASSWORD"  -X DELETE "$D42_BASE_URL$@"}
+
+### LDAP  ##############################################################################################################
+# LDAP
+lds(){ldapsearch -o ldif-wrap=no -H $LDAP_HOST -w $LDAP_PASSWORD -D $LDAP_BIND -b $LDAP_BASE_SEARCH $1}
+
+### PROGRAM OVERRIDES  #################################################################################################
+alias cat='bat'  # https://github.com/sharkdp/bat
+#alias find='fd' # https://github.com/sharkdp/fd
+alias ls="lsd"   # https://github.com/Peltoche/lsdexport 
+
+# Program aliases
+alias excel="open -a 'Microsoft Excel'"
+alias code="code-insiders"
+alias vscode="code-insiders"
+
+# Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
+cenv(){
+  env | grep -i $1 |  \
+  sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
+  sed -E "s/(.*)TOKEN=(.*)/\1TOKEN=<redacted>/"
+}
+
+### DATA WRANGLING  ####################################################################################################
+# Trim whitespace from the beginning and end of a string
+alias trim="python -c \"import sys; print('\n'.join([l.strip() for l in sys.stdin]))\""
+alias lower="tr '[:upper:]' '[:lower:]'"
+alias upper="tr '[:lower:]' '[:upper:]'"
+# Replace whitespace with newlines
+alias w2nl='tr "\t| " "\n"'
+alias lsplit='w2nl'
+
+
+alias _u="python ~/.utils.py"
+alias prune="_u prune"
+alias join="_u join"
+
+# stats() {
+#   echo "Lines Count: $(wc -l | trim)"
+#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
+# }
+
+split_(){ tr $1 "\n" }
+join_(){
+    # This function is imperfect, because it only allows for single character joins
+    #  sed 's/.$//' => remove last character
+    tr "\n" "$1" | sed 's/.$//'
+    
+    #  Consider something more like this maybe?
+    # python -c "import sys; print('"$1"'.join(sys.stdin))"
+}
+
+prepend() { awk '{print "'$1'"$0}' }
+append() { awk '{print $0"'$1'"}' }
+
+# Show frequency table
+frequency() { sort | uniq -c | sort -nr }
+
+# returns a default value if STDIN is empty, otherwise return STDIN
+default() {
+    grep . || echo $1
+    #  awk '{print ($0 == "" ? "'$1'" : $0)}'
+}
+
+# scratchpad
+alias sc="cat /tmp/scratchpad.txt"
+alias scn="pbpaste > /tmp/scratchpad.txt;sc"
+alias sce="code /tmp/scratchpad.txt"

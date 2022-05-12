@@ -19,6 +19,7 @@
     # https://blog.sffc.xyz/post/185195398930/why-you-should-use-git-pull-ff-only-git-is-a
 	ff = only
 
+# https://github.com/dandavison/delta
 [interactive]
     diffFilter = delta --color-only
 
