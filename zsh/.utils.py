@@ -12,11 +12,18 @@ def prune(input_file):
         if line not in prune_lines:
             print(line.rstrip("\n"))
 
+
 def join(join_str):
     """Joins line in STD together"""
     lines = _input_lines()
     print(join_str.join(lines))
 
+def trimnl():
+    """Trim empty (or whitespace) lines from STD"""
+    lines = _input_lines()
+    for line in lines:
+        if line.strip() != "":
+            print(line)
 
 if __name__ == "__main__":
     # interpret first argument as function name, pass along other arguments
