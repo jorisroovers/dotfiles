@@ -1,7 +1,12 @@
-### ENCODING ###########################################################################################################
+### SHELL GENERIC  #####################################################################################################
  
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+
+# Length of terminal history
+# https://askubuntu.com/questions/1006075/increase-reverse-i-search-history-length
+HISTSIZE=1000       # history of a single terminal session, saved in RAM
+HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
 ### ITERM2 #############################################################################################################
 # https://iterm2.com/
@@ -15,10 +20,6 @@ unsetopt AUTO_CD
 
 # Allow '#' to be used as a comment character in shell sessions
 setopt interactivecomments
-# Length of terminal history
-# https://askubuntu.com/questions/1006075/increase-reverse-i-search-history-length
-HISTSIZE=1000       # history of a single terminal session, saved in RAM
-HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
 ### ALIASES AND FUNCTIONS ##############################################################################################
 
@@ -27,6 +28,40 @@ HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history).
 ### WORK ###############################################################################################################
 
 [ -f ~/.workrc ] && source ~/.workrc
+
+### MISC ###############################################################################################################
+
+export PGM_KEY_FILE=~/keys/pgm.pem
+
+# Adds colors to grep on mac
+# http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;35;40'
+
+eval $(thefuck --alias)
+
+### PATH ###############################################################################################################
+
+export PATH="/usr/local/opt/curl/bin:$PATH" # curl
+export PATH="$HOME/.cargo/bin:$PATH"        # cargo (rust)
+export PATH="$PATH:$HOME/.local/bin"        # pipx (can be added by `pipx ensurepath`)
+export PATH="$HOME/.rd/bin:$PATH"           # Rancher Desktop
+
+### OH-MY-POSH #########################################################################################################
+# https://ohmyposh.dev/
+if [ $TERM_PROGRAM != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh --config ~/.joris.omp.json)"
+fi
+
+### FZF ################################################################################################################
+# https://github.com/junegunn/fzf
+FZF_DEFAULT_OPTS="--history-size=3000"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+### DESK ###############################################################################################################
+# https://github.com/jamesob/desk
+# TODO: consider using https://github.com/direnv/direnv instead
+[ -n "$DESK_ENV" ] && source "$DESK_ENV" || true
 
 ### VERSION MANAGERS ###################################################################################################
 
@@ -49,37 +84,3 @@ eval "$(pyenv init -)"
 
 # Ensure pip will only install in virtualenvs
 export PIP_REQUIRE_VIRTUALENV=true
-
-### MISC ###############################################################################################################
-
-export PGM_KEY_FILE=~/keys/pgm.pem
-
-# Adds colors to grep on mac
-# http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;35;40'
-
-eval $(thefuck --alias)
-
-### PATH ###############################################################################################################
-
-export PATH="/usr/local/opt/curl/bin:$PATH" # curl
-export PATH="$HOME/.cargo/bin:$PATH"        # cargo (rust)
-export PATH="$PATH:$HOME/.local/bin"        # pipx (can be added by `pipx ensurepath`)
-export PATH="$HOME/.rd/bin:$PATH"           # Rancher Desktop
-
-### DESK ###############################################################################################################
-# https://github.com/jamesob/desk
-# TODO: consider using https://github.com/direnv/direnv instead
-[ -n "$DESK_ENV" ] && source "$DESK_ENV" || true
-
-### OH-MY-POSH #########################################################################################################
-# https://ohmyposh.dev/
-if [ $TERM_PROGRAM != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ~/.joris.omp.json)"
-fi
-
-### FZF ################################################################################################################
-# https://github.com/junegunn/fzf
-FZF_DEFAULT_OPTS="--history-size=3000"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

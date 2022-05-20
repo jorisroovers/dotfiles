@@ -2,3 +2,5 @@
 .idea
 .vagrant
 .vscode
+*.code-workspace
+

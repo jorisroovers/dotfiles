@@ -6,7 +6,7 @@
             "alignment": "left",
             "segments": [
                 {
-                    "background": "p:orange",
+                    "background": "p:yellow",
                     "foreground": "p:black",
                     "leading_diamond": "\ue0b6",
                     "properties": {
@@ -20,6 +20,7 @@
                 {
                     "type": "python",
                     "style": "diamond",
+                    "trailing_diamond": "\ue0b0",
                     // "powerline_symbol": "\uE0B0",
                     // "trailing_diamond": "<transparent,background>\ue0b0</>",
                     "foreground": "#100e23",

@@ -1,7 +1,6 @@
 ### SHELL UTILITIES ####################################################################################################
 alias reload='exec zsh'
 
-
 alias choose="fzf --height 10"
 alias fchoose="ls | choose"
 
@@ -9,6 +8,13 @@ alias fchoose="ls | choose"
 # ls -R ~/.rc | fzf
 alias myfoo="source ~/.rc/ldap/test"
 # seq 1 5 | choose
+
+# Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
+cenv(){
+  env | grep -i $1 |  \
+  sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
+  sed -E "s/(.*)TOKEN=(.*)/\1TOKEN=<redacted>/"
+}
 
 # Unset env vars based on regex matching (case insensitive)
 unsetall(){
@@ -20,6 +26,13 @@ define(){
   type $1
   declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
+
+# Copies select dotfiles to dotfiles repo on `menthol` server
+copy-dotfiles() {
+  scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc} joris@menthol.local:~/repos/dotfiles
+}
+
+### DESK  ##############################################################################################################
 
 # https://github.com/jamesob/desk
 alias dl="desk list"
@@ -88,13 +101,6 @@ alias excel="open -a 'Microsoft Excel'"
 alias code="code-insiders"
 alias vscode="code-insiders"
 
-# Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
-cenv(){
-  env | grep -i $1 |  \
-  sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
-  sed -E "s/(.*)TOKEN=(.*)/\1TOKEN=<redacted>/"
-}
-
 ### DATA WRANGLING  ####################################################################################################
 # TODO, consider some of https://github.com/dylanaraps/pure-bash-bible
 
@@ -147,7 +153,12 @@ default() {
     #  awk '{print ($0 == "" ? "'$1'" : $0)}'
 }
 
-# scratchpad
+### SCRATCHPAD #########################################################################################################
 alias sc="cat /tmp/scratchpad.txt"
 alias scn="pbpaste > /tmp/scratchpad.txt;sc"
 alias sce="code /tmp/scratchpad.txt"
+
+### DIFF ###############################################################################################################
+ldiff(){
+  _u linecompare $1 $2 | less -SR
+}

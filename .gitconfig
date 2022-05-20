@@ -32,8 +32,8 @@
     file-style = bold yellow ul
     file-decoration-style = none
 
-[includeIf "gitdir:~/work-git/"]
-    path = ~/work-git/.workgitconfig
+[includeIf "gitdir:~/workspaces/"]
+    path = ~/workspaces/.workgitconfig
 
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
