@@ -33,7 +33,7 @@
     file-decoration-style = none
 
 [includeIf "gitdir:~/workspaces/"]
-    path = ~/workspaces/.workgitconfig
+    path = ~/.gitconfig_work
 
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"

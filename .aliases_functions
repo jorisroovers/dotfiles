@@ -29,7 +29,7 @@ define(){
 
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
-  scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc} joris@menthol.local:~/repos/dotfiles
+  scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
 }
 
 ### DESK  ##############################################################################################################
