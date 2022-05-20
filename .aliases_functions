@@ -32,6 +32,11 @@ copy-dotfiles() {
   scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
 }
 
+# Select dotfile to source from .rc directory
+sl(){
+  source $(find ~/.rc  -type f | choose)
+}
+
 ### DESK  ##############################################################################################################
 
 # https://github.com/jamesob/desk

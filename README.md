@@ -1,7 +1,7 @@
 
 # dotfiles
 
-My dotfiles (2022-05-06: in process of cleaning this up).
+My dotfiles.
 
 # TODO
 - Add .bash_profile that imports non-zsh specific items
