@@ -1,3 +1,11 @@
+### ZSH ################################################################################################################
+
+# Disable auto cd
+unsetopt AUTO_CD
+
+# Allow '#' to be used as a comment character in shell sessions
+setopt interactivecomments
+
 ### SHELL GENERIC  #####################################################################################################
  
 export LC_ALL=en_US.UTF-8
@@ -12,14 +20,6 @@ HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history).
 # https://iterm2.com/
 # Activate shell integration. Install via "iTerm2>Install Shell Integration" menu item.
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-### ZSH ################################################################################################################
-
-# Disable auto cd
-unsetopt AUTO_CD
-
-# Allow '#' to be used as a comment character in shell sessions
-setopt interactivecomments
 
 ### ALIASES AND FUNCTIONS ##############################################################################################
 
@@ -38,7 +38,7 @@ export PGM_KEY_FILE=~/keys/pgm.pem
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;35;40'
 
-eval $(thefuck --alias)
+# eval $(thefuck --alias)
 
 ### PATH ###############################################################################################################
 

@@ -37,6 +37,15 @@ def trimnl():
             print(line)
 
 
+def trim():
+    """Trim empty (or whitespace) lines from STD"""
+    lines = _input_lines()
+    for line in lines:
+        stripped = line.strip()
+        if stripped != "":
+            print(stripped)
+
+
 def linecompare(input_file1, input_file2):
     """Compare lines of 2 input files"""
     lines1 = open(input_file1, "r").readlines()
