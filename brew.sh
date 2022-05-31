@@ -35,6 +35,7 @@ pstree
 pyenv
 ripgrep
 ruby
+sd
 tree
 vim
 watch

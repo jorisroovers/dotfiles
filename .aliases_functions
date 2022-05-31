@@ -111,35 +111,35 @@ d42delete(){
 ### DATA WRANGLING  ####################################################################################################
 # _u: call .utils.py and pass all arguments
 # .utils.py is a python script that contains functions for data wrangling
+# While some of these could be written as pure shell functions, python makes many functions simpler and portable across
+# shells.
+
 alias _u="python ~/.utils.py"
 
+# help: print all messages
+alias _h="_u h"
 # trim: remove whitespace from the beginning and end of a string
-# alias trim="python -c \"import sys; print('\n'.join([l.strip() for l in sys.stdin]))\""
 alias trim="_u trim"
 # trimnl: remove empty newlines from stdin
 alias trimnl="_u trimnl"
 # lower: convert all characters to lowercase
-alias lower="tr '[:upper:]' '[:lower:]'"
+alias lower="_u lower"
 # upper: convert all characters to uppercase
-alias upper="tr '[:lower:]' '[:upper:]'"
-# Replace whitespace with newlines
-alias w2nl='tr "\t| " "\n"'
-alias lsplit='w2nl'
-
+alias upper="_u upper"
 # prune: remove all occurences that occur in a specified list (specified via file) from STDIN
 alias prune="_u prune"
+
+# prunestr: "prune string": remove all passed strings from STDIN
+# usage: `input | prunestr "string1" "string2"`
+alias prunestr="_u prunestr"
+
 # join: join all lines in STDIN with a specified delimiter
 alias join="_u join"
 
 # split: split STDIN into lines with a specified delimiter
-split_(){
-    tr $1 "\n"
-}
-
-# stats() {
-#   echo "Lines Count: $(wc -l | trim)"
-#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
-# }
+alias split="_u split"
+# Replace whitespace with newlines
+alias wsplit="_u wsplit"
 
 prepend() {
     awk '{print "'$1'"$0}'
@@ -148,9 +148,19 @@ append()  {
     awk '{print $0"'$1'"}' 
 }
 
+# wrap: wrap each line on stdin with specified delimiters
+wrap(){
+    prepend "$1" | append "$2"
+}
+
+# stats() {
+#   echo "Lines Count: $(wc -l | trim)"
+#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
+# }
+
 # Show frequency table
 frequency() {
-    sort | uniq -c | sort -nr
+    sort | uniq -c | sort -nr | trim
 }
 
 # default: returns a default value if STDIN is empty, otherwise return STDIN

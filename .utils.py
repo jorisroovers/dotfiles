@@ -1,4 +1,12 @@
+import inspect
 import sys
+
+# Workaround for dealing with broken pipes when piping to e.g. `head`
+# https://stackoverflow.com/a/30091579/381010
+from signal import signal, SIGPIPE, SIG_DFL
+
+signal(SIGPIPE, SIG_DFL)
+
 
 RED = "\033[0;31m"
 BLACK = "\033[0;30m"
@@ -11,20 +19,38 @@ LIGHT_GRAY = "\033[0;37m"
 NC = "\033[0m"  # No Color
 
 
+########################################################################################################################
+# Internal helper functions
+########################################################################################################################
+
+
 def _input_lines():
     return sys.stdin.read().split("\n")[:-1]
 
 
+########################################################################################################################
+# Exported utility functions
+########################################################################################################################
+
+
 def prune(input_file):
-    """Prune lines in STD that are present in input file"""
+    """Prune lines in STDIN that are present in input file"""
     prune_lines = open(input_file, "r").readlines()
     for line in sys.stdin:
         if line not in prune_lines:
             print(line.rstrip("\n"))
 
 
+def prunestr(*needles):
+    """Prune lines in STDIN that contain any of the needles"""
+    for line in sys.stdin:
+        line = line.rstrip("\n")
+        if line not in needles:
+            print(line)
+
+
 def join(join_str):
-    """Joins line in STD together"""
+    """Joins line in STDIN together"""
     lines = _input_lines()
     print(join_str.join(lines))
 
@@ -38,12 +64,47 @@ def trimnl():
 
 
 def trim():
-    """Trim empty (or whitespace) lines from STD"""
+    """Trim each line on from STD"""
     lines = _input_lines()
     for line in lines:
         stripped = line.strip()
         if stripped != "":
             print(stripped)
+
+
+def split(delimiter):
+    """Split lines in STD by delimiter"""
+    lines = _input_lines()
+    for line in lines:
+        print("\n".join(line.split(delimiter)))
+
+
+def wsplit():
+    """Whitespace split: split lines in STDIN by whitespace"""
+    split(None)
+
+
+def lower():
+    """Lowercase STD"""
+    lines = _input_lines()
+    for line in lines:
+        print(line.lower())
+
+
+def upper():
+    """Uppercase STD"""
+    lines = _input_lines()
+    for line in lines:
+        print(line.upper())
+
+
+def h():
+    """Print this help message"""
+    func_tuples = inspect.getmembers(sys.modules[__name__], inspect.isfunction)
+    func_tuples = [f for f in func_tuples if not f[0].startswith("_")]
+    func_tuples = [f for f in func_tuples if f[0] not in ("signal")]
+    for func_tuple in func_tuples:
+        print(f"{GREEN}{func_tuple[0]:<15}{NC}   {func_tuple[1].__doc__}")
 
 
 def linecompare(input_file1, input_file2):
