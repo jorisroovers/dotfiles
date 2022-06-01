@@ -29,7 +29,11 @@ define(){
 
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
-    scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
+    # scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
+    
+    # use /./ in rsync to tell rsync to copy the path from that point forward
+    # Thanks sir! https://serverfault.com/a/973844/166001
+    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
 }
 
 ### PROGRAM OVERRIDES  #################################################################################################
@@ -128,11 +132,8 @@ alias lower="_u lower"
 alias upper="_u upper"
 # prune: remove all occurences that occur in a specified list (specified via file) from STDIN
 alias prune="_u prune"
-
 # prunestr: "prune string": remove all passed strings from STDIN
-# usage: `input | prunestr "string1" "string2"`
 alias prunestr="_u prunestr"
-
 # join: join all lines in STDIN with a specified delimiter
 alias join="_u join"
 

@@ -6,15 +6,16 @@ unsetopt AUTO_CD
 # Allow '#' to be used as a comment character in shell sessions
 setopt interactivecomments
 
-### SHELL GENERIC  #####################################################################################################
- 
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
+### OH-MY-ZSH ##########################################################################################################
+# https://ohmyz.sh/
+plugins=(gitfast)
 
-# Length of terminal history
-# https://askubuntu.com/questions/1006075/increase-reverse-i-search-history-length
-HISTSIZE=1000       # history of a single terminal session, saved in RAM
-HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
+export ZSH="$HOME/.oh-my-zsh"
+source $ZSH/oh-my-zsh.sh
+
+### ENVIRONMENT (GENERIC) ##############################################################################################
+
+[ -f ~/.env.sh ] && source ~/.env.sh
 
 ### ITERM2 #############################################################################################################
 # https://iterm2.com/
@@ -28,17 +29,6 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 ### WORK ###############################################################################################################
 
 [ -f ~/.workrc ] && source ~/.workrc
-
-### MISC ###############################################################################################################
-
-export PGM_KEY_FILE=~/keys/pgm.pem
-
-# Adds colors to grep on mac
-# http://superuser.com/questions/416835/how-can-i-grep-with-color-in-mac-os-xs-terminal
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;35;40'
-
-# eval $(thefuck --alias)
 
 ### PATH ###############################################################################################################
 
