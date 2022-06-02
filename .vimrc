@@ -4,6 +4,10 @@ set number
 syntax on
 filetype plugin indent on
 
+" Fix backspace
+" https://stackoverflow.com/a/11560415/381010
+set backspace=indent,eol,start
+
 " recognize strings containing a dash as a single word by appending the dash
 " to the iskeyword variable
 set iskeyword+=-
@@ -101,7 +105,7 @@ endfun
 
 call SetupCommandAlias("W", "w")
 call SetupCommandAlias("Wq", "wq")
-call SetupCommandAlias("q", "q!")
+" call SetupCommandAlias("q", "q!")
 
 " = Highlighting =
 " Highlights trailing whitespace. 

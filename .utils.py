@@ -1,5 +1,8 @@
 import inspect
+import logging
 import sys
+
+logging.basicConfig()
 
 # Workaround for dealing with broken pipes when piping to e.g. `head`
 # https://stackoverflow.com/a/30091579/381010
@@ -7,6 +10,7 @@ from signal import signal, SIGPIPE, SIG_DFL
 
 signal(SIGPIPE, SIG_DFL)
 
+LOG = logging.getLogger(__name__)
 
 RED = "\033[0;31m"
 BLACK = "\033[0;30m"
@@ -25,12 +29,24 @@ NC = "\033[0m"  # No Color
 
 
 def _input_lines():
-    return sys.stdin.read().split("\n")[:-1]
+    # return sys.stdin.read().split("\n")
+    lines = sys.stdin.read().split("\n")
+    if lines[-1] == "":
+        lines = lines[:-1]
+    LOG.debug("lines: %s", lines)
+    return lines
 
 
 ########################################################################################################################
 # Exported utility functions
 ########################################################################################################################
+
+
+def noop():
+    """Print every line passed to stdin"""
+    lines = _input_lines()
+    for line in lines:
+        print(line)
 
 
 def prune(input_file):
@@ -64,7 +80,7 @@ def trimnl():
 
 
 def trim():
-    """Trim each line on from STD"""
+    """Trim each line on from STDIN"""
     lines = _input_lines()
     for line in lines:
         stripped = line.strip()
@@ -72,8 +88,8 @@ def trim():
             print(stripped)
 
 
-def split(delimiter):
-    """Split lines in STD by delimiter"""
+def split(delimiter=None):
+    """Split lines in STDIN by delimiter"""
     lines = _input_lines()
     for line in lines:
         print("\n".join(line.split(delimiter)))
@@ -85,17 +101,40 @@ def wsplit():
 
 
 def lower():
-    """Lowercase STD"""
+    """Lowercase STDIN"""
     lines = _input_lines()
     for line in lines:
         print(line.lower())
 
 
 def upper():
-    """Uppercase STD"""
+    """Uppercase STDIN"""
     lines = _input_lines()
     for line in lines:
         print(line.upper())
+
+
+def prepend(prefix):
+    """Prepend a string to each line in STDIN"""
+    lines = _input_lines()
+    for line in lines:
+        print(f"{prefix}{line}")
+
+
+def append(suffix):
+    """Append a string to each line in STDIN"""
+    lines = _input_lines()
+    for line in lines:
+        print(f"{line}{suffix}")
+
+
+def wrap(prefix, suffix=None):
+    """Append a string to each line in STDIN"""
+    if suffix is None:
+        suffix = prefix
+    lines = _input_lines()
+    for line in lines:
+        print(f"{prefix}{line}{suffix}")
 
 
 def h():
@@ -154,4 +193,8 @@ def linecompare(input_file1, input_file2):
 
 if __name__ == "__main__":
     # interpret first argument as function name, pass along other arguments
+    if len(sys.argv) >= 3 and sys.argv[2] == "--debug":
+        LOG.setLevel(logging.DEBUG)
+        LOG.debug("Debug mode enabled")
+        sys.argv.pop(2)
     globals()[sys.argv[1]](*sys.argv[2:])

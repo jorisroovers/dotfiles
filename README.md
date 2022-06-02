@@ -26,3 +26,4 @@ For my commandline prompt, I use https://ohmyposh.dev/
 - macOS: disable hot corners
 - macOS: add a defaults file to dotfiles repo
 - desk switch: stop going multiple levels deep?
+- Fix vim backspace not working?

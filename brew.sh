@@ -18,6 +18,7 @@ git
 git-delta
 go
 gping
+hexyl
 htop
 hyperfine
 jless
