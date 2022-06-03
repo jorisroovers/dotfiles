@@ -195,6 +195,6 @@ if __name__ == "__main__":
     # interpret first argument as function name, pass along other arguments
     if len(sys.argv) >= 3 and sys.argv[2] == "--debug":
         LOG.setLevel(logging.DEBUG)
-        LOG.debug("Debug mode enabled")
+        LOG.debug(sys.argv[1])
         sys.argv.pop(2)
     globals()[sys.argv[1]](*sys.argv[2:])

@@ -30,13 +30,6 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 [ -f ~/.workrc ] && source ~/.workrc
 
-### PATH ###############################################################################################################
-
-export PATH="/usr/local/opt/curl/bin:$PATH" # curl
-export PATH="$HOME/.cargo/bin:$PATH"        # cargo (rust)
-export PATH="$PATH:$HOME/.local/bin"        # pipx (can be added by `pipx ensurepath`)
-export PATH="$HOME/.rd/bin:$PATH"           # Rancher Desktop
-
 ### OH-MY-POSH #########################################################################################################
 # https://ohmyposh.dev/
 if [ $TERM_PROGRAM != "Apple_Terminal" ]; then

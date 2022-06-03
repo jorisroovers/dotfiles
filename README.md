@@ -14,16 +14,13 @@ For my commandline prompt, I use https://ohmyposh.dev/
 
 # TODO
 - Some basic documentation
-- Add .bash_profile that imports non-zsh specific items
 - Remove remaining install files
 - Upload editor config, vscode settings
-- `wrap` function: combo of prepend and append
 - `copylast` function: copy output of last command (via iTerm)
 - `git branch` as a tree view
-- port all data wrangling functions to python
-- git branch autocomplete
 - git branch checkout TUI
+- easier sourcing for utils.py
 - macOS: disable hot corners
 - macOS: add a defaults file to dotfiles repo
 - desk switch: stop going multiple levels deep?
-- Fix vim backspace not working?
+- Use linuxbrew?

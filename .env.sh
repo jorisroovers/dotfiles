@@ -8,6 +8,21 @@ export LANG=en_US.UTF-8
 HISTSIZE=1000       # history of a single terminal session, saved in RAM
 HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
+
+### PATH ###############################################################################################################
+
+prependpath() {
+  [ -d "$1" ] && PATH="$1:$PATH"
+}
+prependpath '/usr/local/bin'
+prependpath "$HOME/.local/bin"
+prependpath "$HOME/bin"
+prependpath "$HOME/.cargo/bin" # cargo (rust)
+prependpath "$HOME/.rd/bin"    # Rancher Desktop
+
+unset prependpath
+export PATH
+
 ### MISC ###############################################################################################################
 
 export PGM_KEY_FILE=~/keys/pgm.pem
