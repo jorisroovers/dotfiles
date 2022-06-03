@@ -36,6 +36,10 @@ copy-dotfiles() {
     rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
 }
 
+unbloat(){
+    pkill "Microsoft Excel"
+}
+
 ### PROGRAM OVERRIDES  #################################################################################################
 alias cat='bat'  # https://github.com/sharkdp/bat
 #alias find='fd' # https://github.com/sharkdp/fd
@@ -166,7 +170,11 @@ default() {
 
 ### SCRATCHPAD #########################################################################################################
 alias sc="cat /tmp/scratchpad.txt"
-alias scn="pbpaste > /tmp/scratchpad.txt;sc"
+scn(){
+    # replace windows newlines with unix newlines (required when copying from excel)
+    pbpaste | sd "\r\n" "\n" > /tmp/scratchpad.txt
+    sc # show scratchpad
+}
 alias sce="code /tmp/scratchpad.txt"
 
 ### DIFF ###############################################################################################################
