@@ -3,6 +3,7 @@ import logging
 import sys
 
 logging.basicConfig()
+LOG = logging.getLogger(__name__)
 
 # Workaround for dealing with broken pipes when piping to e.g. `head`
 # https://stackoverflow.com/a/30091579/381010
@@ -10,8 +11,7 @@ from signal import signal, SIGPIPE, SIG_DFL
 
 signal(SIGPIPE, SIG_DFL)
 
-LOG = logging.getLogger(__name__)
-
+# Terminal colors
 RED = "\033[0;31m"
 BLACK = "\033[0;30m"
 GREEN = "\033[0;32m"
@@ -35,6 +35,25 @@ def _input_lines():
         lines = lines[:-1]
     LOG.debug("lines: %s", lines)
     return lines
+
+
+def _list_exported_funcs():
+    func_tuples = inspect.getmembers(sys.modules[__name__], inspect.isfunction)
+    func_tuples = [f for f in func_tuples if not f[0].startswith("_")]
+    func_tuples = [f for f in func_tuples if f[0] not in ("signal")]
+    return func_tuples
+
+
+########################################################################################################################
+# Alias installation
+########################################################################################################################
+
+
+def _install_aliases(script_invocation):
+    """Print alias commands for all functions provided by this script. Use as eval ($ _u _install_aliases)"""
+    print('alias myalias="echo foo"')
+    for func_tuple in _list_exported_funcs():
+        print(f'alias {func_tuple[0]}="{script_invocation} {func_tuple[0]}"')
 
 
 ########################################################################################################################
@@ -137,12 +156,21 @@ def wrap(prefix, suffix=None):
         print(f"{prefix}{line}{suffix}")
 
 
+def unwrap(prefix, suffix=None):
+    """Remove a string to each line in STDIN"""
+    if suffix is None:
+        suffix = prefix
+    lines = _input_lines()
+    for line in lines:
+        if line.startswith(prefix) and line.endswith(suffix):
+            print(line[len(prefix) : -len(suffix)])
+        else:
+            print(line)
+
+
 def h():
     """Print this help message"""
-    func_tuples = inspect.getmembers(sys.modules[__name__], inspect.isfunction)
-    func_tuples = [f for f in func_tuples if not f[0].startswith("_")]
-    func_tuples = [f for f in func_tuples if f[0] not in ("signal")]
-    for func_tuple in func_tuples:
+    for func_tuple in _list_exported_funcs():
         print(f"{GREEN}{func_tuple[0]:<15}{NC}   {func_tuple[1].__doc__}")
 
 

@@ -6,6 +6,8 @@ unsetopt AUTO_CD
 # Allow '#' to be used as a comment character in shell sessions
 setopt interactivecomments
 
+alias reload='exec zsh'
+
 ### OH-MY-ZSH ##########################################################################################################
 # https://ohmyz.sh/
 plugins=(gitfast)

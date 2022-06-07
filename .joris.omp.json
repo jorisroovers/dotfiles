@@ -130,15 +130,23 @@
                     "type": "python"
                 },
                 {
-                    "type": "executiontime",
-                    "background": "#83769c",
-                    "foreground": "#ffffff",
+                    "type": "text",
+                    "style": "powerline",
+                    "powerline_symbol": "\ue0b2",
                     "invert_powerline": true,
-                    "leading_diamond": "\ue0b2",
+                    "background": "blue",
+                    "foreground": "white",
+                    "template": "{{ if gt (.Env.SHLVL | atoi) 1 }} \uf489 {{.Env.SHLVL}} {{ end }}"
+                },
+                {
+                    "type": "executiontime",
+                    "style": "diamond",
+                    "invert_powerline": true,
+                    "background": "#83769c",
+                    "foreground": "white",
                     "properties": {
                         "always_enabled": true
                     },
-                    "style": "diamond",
                     "template": " {{ .FormattedMs }} "
                 },
                 {

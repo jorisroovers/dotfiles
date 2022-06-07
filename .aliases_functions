@@ -1,6 +1,4 @@
 ### SHELL UTILITIES ####################################################################################################
-alias reload='exec zsh'
-
 alias choose="fzf --height 10"
 alias fchoose="ls | choose"
 
@@ -27,6 +25,22 @@ define(){
     declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
 
+# stats() {
+#   echo "Lines Count: $(wc -l | trim)"
+#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
+# }
+
+# Show frequency table
+frequency() {
+    sort | uniq -c | sort -nr | trim
+}
+
+# default: returns a default value if STDIN is empty, otherwise return STDIN
+default() {
+    grep . || echo $1
+    #  awk '{print ($0 == "" ? "'$1'" : $0)}'
+}
+
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
     # scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
@@ -49,6 +63,26 @@ alias ls="lsd"   # https://github.com/Peltoche/lsdexport
 alias excel="open -a 'Microsoft Excel'"
 alias code="code-insiders"
 alias vscode="code-insiders"
+
+### DATA WRANGLING  ####################################################################################################
+# .utils.py is a python script that contains functions for data wrangling
+# While some of these could be written as pure shell functions, python makes many functions simpler and portable across
+# shells.
+alias _u="python ~/.utils.py"
+eval $(_u _install_aliases _u)
+
+ldiff(){
+    _u linecompare $1 $2 | less -SR
+}
+
+### SCRATCHPAD #########################################################################################################
+alias sc="cat /tmp/scratchpad.txt"
+scn(){
+    # replace windows newlines with unix newlines (required when copying from excel)
+    pbpaste | sd "\r\n" "\n" > /tmp/scratchpad.txt
+    sc # show scratchpad
+}
+alias sce="code /tmp/scratchpad.txt"
 
 ### DESK  ##############################################################################################################
 
@@ -114,70 +148,4 @@ d42put(){
 }
 d42delete(){
     curl -s -k -u "$D42_USERNAME:$D42_PASSWORD"  -X DELETE "$D42_BASE_URL$@"
-}
-
-### DATA WRANGLING  ####################################################################################################
-# _u: call .utils.py and pass all arguments
-# .utils.py is a python script that contains functions for data wrangling
-# While some of these could be written as pure shell functions, python makes many functions simpler and portable across
-# shells.
-
-alias _u="python ~/.utils.py"
-
-# help: print all messages
-alias _h="_u h"
-# trim: remove whitespace from the beginning and end of a string
-alias trim="_u trim"
-# trimnl: remove empty newlines from stdin
-alias trimnl="_u trimnl"
-# lower: convert all characters to lowercase
-alias lower="_u lower"
-# upper: convert all characters to uppercase
-alias upper="_u upper"
-# prune: remove all occurences that occur in a specified list (specified via file) from STDIN
-alias prune="_u prune"
-# prunestr: "prune string": remove all passed strings from STDIN
-alias prunestr="_u prunestr"
-# join: join all lines in STDIN with a specified delimiter
-alias join="_u join"
-
-# split: split STDIN into lines with a specified delimiter
-alias split="_u split"
-# Replace whitespace with newlines
-alias wsplit="_u wsplit"
-
-alias prepend="_u prepend"
-alias append="_u append"
-alias wrap="_u wrap"
-alias noop="_u noop"
-
-
-# stats() {
-#   echo "Lines Count: $(wc -l | trim)"
-#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
-# }
-
-# Show frequency table
-frequency() {
-    sort | uniq -c | sort -nr | trim
-}
-
-# default: returns a default value if STDIN is empty, otherwise return STDIN
-default() {
-    grep . || echo $1
-    #  awk '{print ($0 == "" ? "'$1'" : $0)}'
-}
-
-### SCRATCHPAD #########################################################################################################
-alias sc="cat /tmp/scratchpad.txt"
-scn(){
-    # replace windows newlines with unix newlines (required when copying from excel)
-    pbpaste | sd "\r\n" "\n" > /tmp/scratchpad.txt
-    sc # show scratchpad
-}
-alias sce="code /tmp/scratchpad.txt"
-
-### DIFF ###############################################################################################################
-ldiff(){
-    _u linecompare $1 $2 | less -SR
 }
