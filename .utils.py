@@ -1,5 +1,6 @@
 import inspect
 import logging
+import os
 import sys
 
 logging.basicConfig()
@@ -19,6 +20,7 @@ BROWN = "\033[0;33m"
 BLUE = "\033[0;34m"
 PURPLE = "\033[0;35m"
 CYAN = "\033[0;36m"
+CYAN_BOLD = "\033[1;36m"
 LIGHT_GRAY = "\033[0;37m"
 NC = "\033[0m"  # No Color
 
@@ -172,6 +174,14 @@ def h():
     """Print this help message"""
     for func_tuple in _list_exported_funcs():
         print(f"{GREEN}{func_tuple[0]:<15}{NC}   {func_tuple[1].__doc__}")
+
+
+def linetitle(message, linechar="="):
+    """Prints a title line with a passed message"""
+    # # +21 = 3*7 chars color codes in `message`` below
+    columns = os.get_terminal_size().columns + 21
+    message = f"{CYAN}{linechar * 3} {CYAN_BOLD}{message}{CYAN} "
+    print(f"{message:{linechar}<{columns}}{NC}")
 
 
 def linecompare(input_file1, input_file2):

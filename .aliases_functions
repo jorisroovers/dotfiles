@@ -43,8 +43,6 @@ default() {
 
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
-    # scp ~/{.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh} joris@menthol.local:~/repos/dotfiles
-    
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
     rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
@@ -52,6 +50,26 @@ copy-dotfiles() {
 
 unbloat(){
     pkill "Microsoft Excel"
+}
+
+line(){
+    linechar=${1:-"#"}
+    python -c "print('\033[0;36m' + ('$linechar' * $(tput cols) + '\033[0m'))"
+    # printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+}
+
+# Human friendly timestamp
+human-timestamp(){
+    date +'%Y-%m-%d_%H-%M-%S'
+}
+
+random-filename(){
+    prefix=${1:-"file-"}
+    echo "$prefix$(human-timestamp)"
+}
+
+temp-filepath(){
+    echo "/tmp/$(random-filename $1)"
 }
 
 ### PROGRAM OVERRIDES  #################################################################################################
@@ -69,10 +87,14 @@ alias vscode="code-insiders"
 # While some of these could be written as pure shell functions, python makes many functions simpler and portable across
 # shells.
 alias _u="python ~/.utils.py"
-eval $(_u _install_aliases _u)
+eval "$(_u _install_aliases _u)"
 
 ldiff(){
     _u linecompare $1 $2 | less -SR
+}
+
+pypaths() {
+    pbpaste | split "," | awk '{print $3}' | sd "local\('" "" | sd "'\)" "" | xargs -L2 echo ldiff
 }
 
 ### SCRATCHPAD #########################################################################################################
@@ -94,9 +116,11 @@ desk_choose(){
 ds() { # Desk "switch"
   desk go $(desk_choose)
 }
+
 de(){
     code-insiders ~/.desk/desks/$(desk_choose).sh
 }
+
 
 ### ANSIBLE  ###########################################################################################################
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
@@ -137,7 +161,7 @@ lds(){
 
 ### Device42  ##########################################################################################################
 
-d42get(){ 
+d42get(){
     curl -s -k -u "$D42_USERNAME:$D42_PASSWORD" "$D42_BASE_URL$@"
 }
 d42post(){
