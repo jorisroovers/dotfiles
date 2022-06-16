@@ -9,6 +9,7 @@ desk
 dive
 dnslookup
 dog
+dust
 fd
 ffmpeg
 fx

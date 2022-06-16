@@ -25,31 +25,10 @@ define(){
     declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
 
-# stats() {
-#   echo "Lines Count: $(wc -l | trim)"
-#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
-# }
-
-# Show frequency table
-frequency() {
-    sort | uniq -c | sort -nr | trim
-}
-
 # default: returns a default value if STDIN is empty, otherwise return STDIN
 default() {
     grep . || echo $1
     #  awk '{print ($0 == "" ? "'$1'" : $0)}'
-}
-
-# Copies select dotfiles to dotfiles repo on `menthol` server
-copy-dotfiles() {
-    # use /./ in rsync to tell rsync to copy the path from that point forward
-    # Thanks sir! https://serverfault.com/a/973844/166001
-    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
-}
-
-unbloat(){
-    pkill "Microsoft Excel"
 }
 
 line(){
@@ -58,10 +37,14 @@ line(){
     # printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
+### TIME ###############################################################################################################
+
 # Human friendly timestamp
 human-timestamp(){
     date +'%Y-%m-%d_%H-%M-%S'
 }
+
+### FILE I/O ###########################################################################################################
 
 random-filename(){
     prefix=${1:-"file-"}
@@ -70,6 +53,36 @@ random-filename(){
 
 temp-filepath(){
     echo "/tmp/$(random-filename $1)"
+}
+
+### PROCESS MGMT #######################################################################################################
+
+unbloat(){
+    pkill "Microsoft Excel"
+}
+
+### FOCUS MODES  #######################################################################################################
+
+# Copies select dotfiles to dotfiles repo on `menthol` server
+copy-dotfiles() {
+    # use /./ in rsync to tell rsync to copy the path from that point forward
+    # Thanks sir! https://serverfault.com/a/973844/166001
+    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
+}
+
+
+focus-personal(){
+    pkill "Microsoft Excel"
+    pkill "Microsoft PowerPoint"
+    pkill "Microsoft Outlook"
+    pkill "Webex Teams"
+    pkill "draw.io"
+    pkill "SimpleMind"
+}
+
+focus-work(){
+    open -a 'Microsoft Outlook'
+    open -a 'Webex Teams'
 }
 
 ### PROGRAM OVERRIDES  #################################################################################################
@@ -93,9 +106,15 @@ ldiff(){
     _u linecompare $1 $2 | less -SR
 }
 
-pypaths() {
-    pbpaste | split "," | awk '{print $3}' | sd "local\('" "" | sd "'\)" "" | xargs -L2 echo ldiff
+# Show frequency table
+frequency() {
+    sort | uniq -c | sort -nr | trim
 }
+
+# stats() {
+#   echo "Lines Count: $(wc -l | trim)"
+#   echo "Unique Lines: $(sort | uniq | wc -l | trim)"
+# }
 
 ### SCRATCHPAD #########################################################################################################
 alias sc="cat /tmp/scratchpad.txt"
@@ -111,16 +130,22 @@ alias sce="code /tmp/scratchpad.txt"
 # https://github.com/jamesob/desk
 alias dl="desk list"
 desk_choose(){
-  desk list | choose | awk '{print $1}'
+    desk list | choose | awk '{print $1}'
 }
 ds() { # Desk "switch"
-  desk go $(desk_choose)
+    desk go $(desk_choose)
 }
 
 de(){
     code-insiders ~/.desk/desks/$(desk_choose).sh
 }
 
+### PYTEST #############################################################################################################
+
+# TODO: still WIP, easily extract paths from pytest output
+pypaths() {
+    pbpaste | split "," | awk '{print $3}' | sd "local\('" "" | sd "'\)" "" | xargs -L2 echo ldiff
+}
 
 ### ANSIBLE  ###########################################################################################################
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
@@ -156,7 +181,7 @@ alias vssh='vagrant ssh'
 
 ### LDAP  ##############################################################################################################
 lds(){
-  ldapsearch -o ldif-wrap=no -H $LDAP_HOST -w $LDAP_PASSWORD -D $LDAP_BIND -b $LDAP_BASE_SEARCH $1
+    ldapsearch -o ldif-wrap=no -H $LDAP_HOST -w $LDAP_PASSWORD -D $LDAP_BIND -b $LDAP_BASE_SEARCH $1
 }
 
 ### Device42  ##########################################################################################################

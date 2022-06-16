@@ -86,6 +86,14 @@ def prunestr(*needles):
             print(line)
 
 
+def keepstr(*needles):
+    """Only keep lines in STDIN that contain any of the needles"""
+    for line in sys.stdin:
+        line = line.rstrip("\n")
+        if line in needles:
+            print(line)
+
+
 def join(join_str):
     """Joins line in STDIN together"""
     lines = _input_lines()
@@ -168,6 +176,15 @@ def unwrap(prefix, suffix=None):
             print(line[len(prefix) : -len(suffix)])
         else:
             print(line)
+
+
+def add():
+    """Adds up all numbers passed to stdin"""
+    lines = _input_lines()
+    total = 0
+    for line in lines:
+        total += int(line)
+    print(total)
 
 
 def h():
