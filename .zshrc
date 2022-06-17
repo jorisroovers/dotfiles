@@ -26,7 +26,7 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 ### ALIASES AND FUNCTIONS ##############################################################################################
 
-[ -f ~/.aliases_functions ] && source ~/.aliases_functions
+[ -f ~/.aliases_functions.sh ] && source ~/.aliases_functions.sh
 
 ### WORK ###############################################################################################################
 

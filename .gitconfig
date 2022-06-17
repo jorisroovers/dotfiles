@@ -3,7 +3,7 @@
     path = ~/.gituserinfo
 
 [core]
-	excludesfile = ~/.gitignore_global
+    excludesfile = ~/.gitignore_global
     editor = vim
     autocrlf = input
     # https://github.com/dandavison/delta
@@ -18,7 +18,7 @@
 [pull]
     # Good explanation on why to use --ff-only:
     # https://blog.sffc.xyz/post/185195398930/why-you-should-use-git-pull-ff-only-git-is-a
-	ff = only
+    ff = only
 
 [interactive]
     diffFilter = delta --color-only

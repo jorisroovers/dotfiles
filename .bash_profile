@@ -7,8 +7,7 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 [ -f ~/.env.sh ] && source ~/.env.sh
-
-[ -f ~/.aliases_functions ] && source ~/.aliases_functions
+[ -f ~/.aliases_functions.sh ] && source ~/.aliases_functions.sh
 
 eval "$(oh-my-posh init bash --config ~/.joris.omp.json)"
 

@@ -67,7 +67,7 @@ unbloat(){
 copy-dotfiles() {
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
-    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
+    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions.sh,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
 }
 
 
