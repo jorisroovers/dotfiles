@@ -4,10 +4,10 @@
 # List with libraries removed:
 # brew list --full-name -1 | grep -v "^lib"
 ansible
+assh
 bat
 desk
 dive
-dnslookup
 dog
 dust
 fd
@@ -50,3 +50,4 @@ wireshark
 eddieantonio/eddieantonio/imgcat
 saulpw/vd/visidata
 font-hack-nerd-font
+

@@ -65,11 +65,12 @@ unbloat(){
 
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
+    target="joris@menthol.local:~/repos/dotfiles"
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
-    rsync --relative ~/./{.config/gh/config.yml,.env.sh,.aliases_functions.sh,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} joris@menthol.local:~/repos/dotfiles
+    rsync --relative ~/./{.env.sh,.aliases_functions.sh,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
+    rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
 }
-
 
 focus-personal(){
     pkill "Microsoft Excel"
@@ -86,9 +87,10 @@ focus-work(){
 }
 
 ### PROGRAM OVERRIDES  #################################################################################################
-alias cat='bat'  # https://github.com/sharkdp/bat
-#alias find='fd' # https://github.com/sharkdp/fd
-alias ls="lsd"   # https://github.com/Peltoche/lsdexport 
+alias cat='bat'                 # https://github.com/sharkdp/bat
+#alias find='fd'                # https://github.com/sharkdp/fd
+alias ls="lsd"                  # https://github.com/Peltoche/lsdexport 
+alias ssh="assh wrapper ssh --" # https://github.com/moul/assh
 
 # Program aliases
 alias excel="open -a 'Microsoft Excel'"
@@ -135,7 +137,6 @@ desk_choose(){
 ds() { # Desk "switch"
     desk go $(desk_choose)
 }
-
 de(){
     code-insiders ~/.desk/desks/$(desk_choose).sh
 }

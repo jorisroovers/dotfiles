@@ -9,4 +9,5 @@ pager: !!null less -FX
 # Aliases allow you to create nicknames for gh commands
 aliases:
     co: pr checkout
+    # See https://github.com/cli/cli/issues/846#issuecomment-1142104190
     prl: pr list --json number,title,headRefName,author --template '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (.headRefName | color "cyan") (.author.login | color "yellow") }}{{end}}'
