@@ -8,7 +8,6 @@ export LANG=en_US.UTF-8
 HISTSIZE=1000       # history of a single terminal session, saved in RAM
 HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
-
 ### PATH ###############################################################################################################
 
 prependpath() {
@@ -34,3 +33,6 @@ export GREP_COLOR='1;35;40'
 
 export EDITOR=vim
 export PAGER=less
+
+# Ensure pip will only install in virtualenvs
+export PIP_REQUIRE_VIRTUALENV=true

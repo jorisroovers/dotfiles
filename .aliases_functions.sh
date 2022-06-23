@@ -76,7 +76,8 @@ copy-dotfiles() {
     target="joris@menthol.local:~/repos/dotfiles"
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
-    rsync --relative ~/./{.env.sh,.aliases_functions.sh,.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
+    rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
+    rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
     rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
 }
 

@@ -50,22 +50,4 @@ FZF_DEFAULT_OPTS="--history-size=3000"
 
 ### VERSION MANAGERS ###################################################################################################
 
-# GVM (Go): https://github.com/moovweb/gvm
-source ~/.gvm/scripts/gvm
-
-# SLOW?
-# NVM (Node): https://github.com/nvm-sh/nvm
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# RVM (Ruby): https://rvm.io/
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
-# Python
-
-# pyenv: https://github.com/pyenv/pyenv
-eval "$(pyenv init -)"
-
-# Ensure pip will only install in virtualenvs
-export PIP_REQUIRE_VIRTUALENV=true
+[ -f ~/.version-managers.sh ] && source ~/.version-managers.sh
