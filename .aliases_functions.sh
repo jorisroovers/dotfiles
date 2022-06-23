@@ -37,6 +37,14 @@ line(){
     # printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
+# o2f: output-to-file. Runs a command and writes the output to a file, returns filename
+# NOTE: should be the same as <(some command), consider removing this
+o2f(){
+    file=$(temp-filepath)
+    echo $file
+    eval "$@" > $file
+}
+
 ### TIME ###############################################################################################################
 
 # Human friendly timestamp
