@@ -1,3 +1,4 @@
+import csv
 import inspect
 import logging
 import os
@@ -22,6 +23,7 @@ PURPLE = "\033[0;35m"
 CYAN = "\033[0;36m"
 CYAN_BOLD = "\033[1;36m"
 LIGHT_GRAY = "\033[0;37m"
+WHITE = "\033[0;37m"
 NC = "\033[0m"  # No Color
 
 
@@ -244,6 +246,32 @@ def linecompare(input_file1, input_file2):
         print(f"{file2_prefix}:L{line_num} | {result} | {line2_colored}")
         print()
         line_num += 1
+
+
+def csvcompare(input_file1, input_file2):
+    """Compare 2 CSV files by overlapping them"""
+    # NOTE: quick hacky implementation, doesn't deal with mismatch in rows or columns
+
+    with open(input_file1) as csvfile1, open(input_file2) as csvfile2:
+        f1 = csv.reader(csvfile1)
+        f2 = csv.reader(csvfile2)
+
+        writer = csv.writer(sys.stdout)
+        for row_f1 in f1:
+            row_f2 = next(f2)
+            output_row = []
+            for i, _ in enumerate(row_f1):
+                cell_output = ""
+                if row_f1[i] == row_f2[i]:
+                    cell_output = f"{WHITE}{row_f1[i]}{NC}{WHITE}{NC}"
+                else:
+                    if row_f2[i] == "":
+                        row_f2[i] = "(empty)"
+                    cell_output = f"{RED}{row_f1[i]}{NC} | {PURPLE}{row_f2[i]}{NC}"
+
+                output_row.append(cell_output)
+
+            writer.writerow(output_row)
 
 
 if __name__ == "__main__":

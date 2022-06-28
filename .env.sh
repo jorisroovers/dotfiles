@@ -19,7 +19,7 @@ prependpath "$HOME/bin"
 prependpath "$HOME/.cargo/bin" # cargo (rust)
 prependpath "$HOME/.rd/bin"    # Rancher Desktop
 
-unset prependpath
+# unset prependpath
 export PATH
 
 ### MISC ###############################################################################################################

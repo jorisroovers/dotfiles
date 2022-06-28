@@ -7,7 +7,9 @@
     editor = vim
     autocrlf = input
     # https://github.com/dandavison/delta
-    pager = delta 
+    pager = delta
+    # https://github.blog/2022-06-27-highlights-from-git-2-37/#a-builtin-filesystem-monitor-for-windows-and-macos
+    fsmonitor = true
 
     #pager = "diff-so-fancy | less --tabs=4 -RFX"
 [color]

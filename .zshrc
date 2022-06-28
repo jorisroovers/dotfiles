@@ -24,6 +24,11 @@ source $ZSH/oh-my-zsh.sh
 # Activate shell integration. Install via "iTerm2>Install Shell Integration" menu item.
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+
+### VERSION MANAGERS ###################################################################################################
+# Needs to happen early, for runtimes to be available for scripts below
+[ -f ~/.version-managers.sh ] && source ~/.version-managers.sh
+
 ### ALIASES AND FUNCTIONS ##############################################################################################
 
 [ -f ~/.aliases_functions.sh ] && source ~/.aliases_functions.sh
@@ -47,7 +52,3 @@ FZF_DEFAULT_OPTS="--history-size=3000"
 # https://github.com/jamesob/desk
 # TODO: consider using https://github.com/direnv/direnv instead
 [ -n "$DESK_ENV" ] && source "$DESK_ENV" || true
-
-### VERSION MANAGERS ###################################################################################################
-
-[ -f ~/.version-managers.sh ] && source ~/.version-managers.sh

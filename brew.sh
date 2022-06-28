@@ -35,6 +35,7 @@ pipx
 poetry
 pstree
 pyenv
+rich-cli
 ripgrep
 ruby
 sd

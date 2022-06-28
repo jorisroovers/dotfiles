@@ -4,14 +4,14 @@ alias fchoose="ls | choose"
 
 # Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
 cenv(){
-    env | grep -i $1 |  \
+    env | grep -i $1 --color=always |  \
     sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
     sed -E "s/(.*)TOKEN=(.*)/\1TOKEN=<redacted>/"
 }
 
 # Unset env vars based on regex matching (case insensitive)
 unsetall(){
-    unset $(cenv $1 | awk -F "=" '{print $1}')
+    unset $(env | grep -i $1 | awk -F "=" '{print $1}')
 }
 
 # Select dotfile to source from .rc directory
@@ -117,6 +117,12 @@ ldiff(){
     _u linecompare $1 $2 | less -SR
 }
 
+csvdiff(){
+    echo "$1: $(xsv count $1)x$(xsv headers $1 | wc -l | tr -d ' ')"
+    echo "$2: $(xsv count $2)x$(xsv headers $2 | wc -l | tr -d ' ')"
+    _u csvcompare $1 $2 | xsv table
+}
+
 # Show frequency table
 frequency() {
     sort | uniq -c | sort -nr | trim
@@ -159,6 +165,8 @@ pypaths() {
 
 ### ANSIBLE  ###########################################################################################################
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
+# re-use (a)ssh controlpath for ssh connections
+export ANSIBLE_SSH_EXTRA_ARGS="-o ControlMaster=auto -o ControlPersist=yes -o ControlPath=~/.ssh/socket-%h-%p-%r.sock"
 
 vault-get(){
     local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
