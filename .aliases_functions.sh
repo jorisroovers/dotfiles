@@ -120,7 +120,12 @@ ldiff(){
 csvdiff(){
     echo "$1: $(xsv count $1)x$(xsv headers $1 | wc -l | tr -d ' ')"
     echo "$2: $(xsv count $2)x$(xsv headers $2 | wc -l | tr -d ' ')"
-    _u csvcompare $1 $2 | xsv table
+    _u csvcompare $1 $2 $3 | xsv table
+}
+
+xlsdiff(){
+    # Uses xlsx2csv to convert, and then does a CSV compare: https://github.com/dilshod/xlsx2csv
+    _u csvcompare <(xlsx2csv -n Data $1) <(xlsx2csv -n Data $2) $3 | xsv table
 }
 
 # Show frequency table

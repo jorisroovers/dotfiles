@@ -22,6 +22,13 @@ prependpath "$HOME/.rd/bin"    # Rancher Desktop
 # unset prependpath
 export PATH
 
+### PYTHON #############################################################################################################
+
+# Ensure pip will only install in virtualenvs
+export PIP_REQUIRE_VIRTUALENV=true
+# Use pdbr for debugging: 
+export PYTHONBREAKPOINT=pdbr.set_trace
+
 ### MISC ###############################################################################################################
 
 export PGM_KEY_FILE=~/keys/pgm.pem
@@ -34,5 +41,3 @@ export GREP_COLOR='1;35;40'
 export EDITOR=vim
 export PAGER=less
 
-# Ensure pip will only install in virtualenvs
-export PIP_REQUIRE_VIRTUALENV=true

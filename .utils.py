@@ -248,7 +248,7 @@ def linecompare(input_file1, input_file2):
         line_num += 1
 
 
-def csvcompare(input_file1, input_file2):
+def csvcompare(input_file1, input_file2, only_diff=False):
     """Compare 2 CSV files by overlapping them"""
     # NOTE: quick hacky implementation, doesn't deal with mismatch in rows or columns
 
@@ -259,6 +259,9 @@ def csvcompare(input_file1, input_file2):
         writer = csv.writer(sys.stdout)
         for row_f1 in f1:
             row_f2 = next(f2)
+            if only_diff and row_f1 == row_f2:
+                continue
+
             output_row = []
             for i, _ in enumerate(row_f1):
                 cell_output = ""
