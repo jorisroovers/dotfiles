@@ -79,6 +79,7 @@ copy-dotfiles() {
     rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
     rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
     rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
+    rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json $target/vscode
 }
 
 focus-personal(){
@@ -126,6 +127,10 @@ csvdiff(){
 xlsdiff(){
     # Uses xlsx2csv to convert, and then does a CSV compare: https://github.com/dilshod/xlsx2csv
     _u csvcompare <(xlsx2csv -n Data $1) <(xlsx2csv -n Data $2) $3 | xsv table
+}
+
+xlscount(){
+    xlsx2csv -n Data $1 | xsv count
 }
 
 # Show frequency table

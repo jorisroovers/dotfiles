@@ -10,6 +10,12 @@ fi
 
 [ -f ~/.env.sh ] && source ~/.env.sh
 
+
+### LINUXBREW ##########################################################################################################
+# https://docs.brew.sh/Homebrew-on-Linux
+# Has to be initialized early because it adds programs to PATH that are depended on below
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 ### ALIASES AND FUNCTIONS ##############################################################################################
 
 [ -f ~/.aliases_functions.sh ] && source ~/.aliases_functions.sh
@@ -25,7 +31,4 @@ FZF_DEFAULT_OPTS="--history-size=3000"
 eval "$(oh-my-posh init bash --config ~/.joris.omp.json)"
 
 
-### LINUXBREW ##########################################################################################################
-# https://docs.brew.sh/Homebrew-on-Linux
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 

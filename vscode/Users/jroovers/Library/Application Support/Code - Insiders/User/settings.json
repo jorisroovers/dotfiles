@@ -1,0 +1,126 @@
+{
+    "files.associations": {
+        // HAdashboard
+        "*.dash": "yaml",
+        // cuda
+        "*.cu": "cpp"
+    },
+    "files.defaultLanguage": "markdown",
+    "files.exclude": {
+        "**/*.pyc": true,
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    },
+    "editor.rulers": [80, 120],
+    "explorer.confirmDragAndDrop": false,
+    "explorer.openEditors.visible": 5,
+    "gitlens.advanced.messages": {
+        "suppressCommitHasNoPreviousCommitWarning": false,
+        "suppressCommitNotFoundWarning": false,
+        "suppressFileNotUnderSourceControlWarning": false,
+        "suppressGitVersionWarning": false,
+        "suppressLineUncommittedWarning": false,
+        "suppressNoRepositoryWarning": false,
+        "suppressResultsExplorerNotice": true,
+        "suppressShowKeyBindingsNotice": true,
+        "suppressUpdateNotice": false,
+        "suppressWelcomeNotice": true
+    },
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        120
+    ],
+    "rust.mode": "legacy",
+    "rust.rustup": {
+        "toolchain": "stable-x86_64-apple-darwin",
+        "nightlyToolchain": "nightly-2017-12-21-x86_64-apple-darwin"
+    },
+    "gitlens.keymap": "chorded",
+    "vsnotes.defaultNotePath": "/Users/jroovers/Documents/tmp",
+    "window.zoomLevel": 0,
+    "breadcrumbs.enabled": true,
+    "python.jediEnabled": false,
+    "go.formatTool": "goimports",
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "go.useLanguageServer": true,
+    "workbench.iconTheme": "vscode-icons",
+    "cSpell.enabledLanguageIds": [
+        "asciidoc",
+        "c",
+        "cpp",
+        "csharp",
+        "css",
+        "git-commit",
+        "go",
+        "handlebars",
+        "html",
+        "jade",
+        "java",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "jsonc",
+        "latex",
+        "less",
+        "markdown",
+        "php",
+        "plaintext",
+        "pug",
+        "python",
+        "restructuredtext",
+        "rust",
+        "scala",
+        "scss",
+        "text",
+        "typescript",
+        "typescriptreact",
+        "yaml",
+        "yml"
+    ],
+    "vsicons.dontShowNewVersionMessage": true,
+    "editor.copyWithSyntaxHighlighting": false,
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "workbench.editor.limit.enabled": true,
+    "workbench.editor.limit.value": 5,
+    "python.languageServer": "Default",
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
+    "java.home": "/Users/jroovers/Library/Java/JavaVirtualMachines/openjdk-16/Contents/Home",
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "redhat.telemetry.enabled": false,
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": true,
+        "plaintext": false,
+        "markdown": false
+    },
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "security.workspace.trust.untrustedFiles": "open",
+    "diffEditor.renderSideBySide": false,
+    "githubPullRequests.defaultMergeMethod": "squash",
+    "git.mergeEditor": true,
+    "window.commandCenter": true
+}
