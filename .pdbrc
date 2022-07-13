@@ -1,0 +1,7 @@
+# from __future__ import annotations
+
+# Enable local variable auto complete in PDB
+# Thanks: https://github.com/asottile/scratch/blob/e11b5d1be4f82c48b836caaaaa79f8c1d759251e/.pdbrc
+import rlcompleter
+
+__import__("pdb").Pdb.complete = rlcompleter.Completer(locals()).complete

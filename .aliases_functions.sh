@@ -4,14 +4,32 @@ alias fchoose="ls | choose"
 
 # Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
 cenv(){
-    env | grep -i $1 --color=always |  \
-    sed -E "s/(.*)PASSWORD=(.*)/\1PASSWORD=<redacted>/" | \
-    sed -E "s/(.*)TOKEN=(.*)/\1TOKEN=<redacted>/"
+    # Filter output
+    if [ -n "$1" ]; then
+        output=$(env | grep -i $1 --color=always)
+    else
+        output=$(env)
+    fi
+    # Redact passwords and tokens, mark empty vars
+    echo $output |  \
+    sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted>/" | \
+    sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted>/" | \
+    sed -E "s/(.*)=$/\1=<empty>/"
 }
 
 # Unset env vars based on regex matching (case insensitive)
 unsetall(){
     unset $(env | grep -i $1 | awk -F "=" '{print $1}')
+}
+
+# Edit an ENV VAR in $EDITOR, then export it back to the shell
+editvar(){
+    envvar=$(env | choose)
+    tempfile=$(temp-filepath)
+    echo "$envvar" > $tempfile
+    $EDITOR $tempfile
+    eval "export $(cat $tempfile)"
+    cat $tempfile
 }
 
 # Select dotfile to source from .rc directory
@@ -77,7 +95,7 @@ copy-dotfiles() {
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
     rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
-    rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
+    rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.pdbrc,.zshrc,brew.sh,.vimrc} $target
     rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
     rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json $target/vscode
 }
@@ -127,6 +145,10 @@ csvdiff(){
 xlsdiff(){
     # Uses xlsx2csv to convert, and then does a CSV compare: https://github.com/dilshod/xlsx2csv
     _u csvcompare <(xlsx2csv -n Data $1) <(xlsx2csv -n Data $2) $3 | xsv table
+}
+
+xlsview(){
+    xlsx2csv -n Data $1 | xsv table
 }
 
 xlscount(){
