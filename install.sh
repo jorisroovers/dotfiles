@@ -17,3 +17,4 @@ ln -fs $PWD/.joris.omp.json ~
 ln -fs $PWD/{.bash_profile,.env.sh} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
+ln -fs $PWD/.config/gh/config.yml ~/.config/gh/config.yml

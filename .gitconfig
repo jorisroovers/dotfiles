@@ -22,6 +22,11 @@
     # https://blog.sffc.xyz/post/185195398930/why-you-should-use-git-pull-ff-only-git-is-a
     ff = only
 
+[push]
+    # https://twitter.com/JI/status/1546948817462800384
+    # Don't require `--set-upsttram origin` when pushing branches
+    autoSetupRemote = true
+
 [interactive]
     diffFilter = delta --color-only
 
