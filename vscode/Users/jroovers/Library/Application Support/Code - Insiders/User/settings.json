@@ -122,5 +122,7 @@
     "diffEditor.renderSideBySide": false,
     "githubPullRequests.defaultMergeMethod": "squash",
     "git.mergeEditor": true,
-    "window.commandCenter": true
+    "window.commandCenter": true,
+    "editor.experimental.stickyScroll.enabled": true,
+    "remote.SSH.externalSSH_ASKPASS": true,
 }

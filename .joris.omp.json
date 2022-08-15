@@ -176,10 +176,5 @@
         "template": "<p:yellow,transparent>\ue0b6</><,p:yellow> > </><p:yellow,transparent>\ue0b0</> "
     },
     "tooltips": [],
-    "transient_prompt": {
-        "background": "transparent",
-        "foreground": "p:black",
-        "template": "<p:yellow,transparent>\ue0b6</><,p:yellow> {{ .Folder }} </><p:yellow,transparent>\ue0b0</> "
-    },
     "version": 2
 }
