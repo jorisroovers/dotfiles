@@ -12,8 +12,10 @@ cenv(){
     fi
     # Redact passwords and tokens, mark empty vars
     echo $output |  \
-    sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted>/" | \
-    sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted>/" | \
+    sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted (non-empty)>/" | \
+    sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted (non-empty)>/" | \
+    sed -E "s/(.*)SECRET(.*)=(.+)/\1SECRET\2=<redacted (non-empty)>/" | \
+    sed -E "s/(.*)ROLE_ID=(.+)/\1ROLE_ID=<redacted (non-empty)>/" | \
     sed -E "s/(.*)=$/\1=<empty>/"
 }
 
@@ -128,6 +130,7 @@ alias ssh="assh wrapper ssh --" # https://github.com/moul/assh
 alias excel="open -a 'Microsoft Excel'"
 alias code="code-insiders"
 alias vscode="code-insiders"
+alias pc="pre-commit"
 
 ### DATA WRANGLING  ####################################################################################################
 # .utils.py is a python script that contains functions for data wrangling
@@ -199,17 +202,28 @@ pypaths() {
     pbpaste | split "," | awk '{print $3}' | sd "local\('" "" | sd "'\)" "" | xargs -L2 echo ldiff
 }
 
+### HASHICORP VAULT ####################################################################################################
+
+hvault_login(){
+    error_msg="Required env vars: VAULT_ROLE_ID, VAULT_SECRET_ID"
+    [ -z ${VAULT_ROLE_ID} ] && echo $error_msg && return 1
+    [ -z ${VAULT_SECRET_ID} ] && echo $error_msg && return 1
+
+    VAULT_RESPONSE=$(vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID -format=json)
+    export VAULT_TOKEN=$(echo $VAULT_RESPONSE | jq -r .auth.client_token)
+}
+
 ### ANSIBLE  ###########################################################################################################
 export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
 # re-use (a)ssh controlpath for ssh connections
 export ANSIBLE_SSH_EXTRA_ARGS="-o ControlMaster=auto -o ControlPersist=yes -o ControlPath=~/.ssh/socket-%h-%p-%r.sock"
 
-vault-get(){
+ansible-vault-get(){
     local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
     echo "$VAULT" | awk "/$1: /{print \$2}" | tr -d '\"'
 }
 
-vault-search(){
+ansible-vault-search(){
     local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"
     echo "$VAULT" | grep "$1"
 }
