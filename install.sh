@@ -1,15 +1,18 @@
 #!/bin/bash
-set -x
+set -ux
 
-# cp .joris.omp.json ~
+# Install homebrew if not already installed
+brew --version || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# cp {.gitconfig,.gitignore_global} ~
+install_brew_package(){
+    brew info $1 || brew install $1
+}
 
-# cp {.utils.py,.aliases_functions} ~
+install_brew_package git
+install_brew_package jq
+install_brew_package gh
 
-# cp .env.sh ~
-
-# cp {.vimrc,.vimhelp} ~
+# TODO: do install of `cat brew.sh  | grep -v '#'`
 
 ln -fs $PWD/{.vimrc,.vimhelp} ~
 ln -fs $PWD/{.utils.py,.aliases_functions.sh} ~
