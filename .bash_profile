@@ -1,3 +1,5 @@
+# bash_profile: sourced for login shells only by default
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
