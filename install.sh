@@ -8,9 +8,13 @@ install_brew_package(){
     brew info $1 || brew install $1
 }
 
+install_brew_package bat
 install_brew_package git
+install_brew_package git-delta
 install_brew_package jq
 install_brew_package gh
+install_brew_package ripgrep
+install_brew_package oh-my-posh
 
 # TODO: do install of `cat brew.sh  | grep -v '#'`
 
