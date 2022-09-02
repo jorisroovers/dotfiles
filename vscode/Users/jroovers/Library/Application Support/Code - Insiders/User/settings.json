@@ -49,10 +49,10 @@
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[html]": {
-        "editor.defaultFormatter": "HookyQR.beautify"
+        "editor.defaultFormatter": "vscode.html-language-features"
     },
     "[jsonc]": {
-        "editor.defaultFormatter": "HookyQR.beautify"
+        "editor.defaultFormatter": "vscode.json-language-features"
     },
     "go.useLanguageServer": true,
     "workbench.iconTheme": "vscode-icons",
@@ -123,6 +123,11 @@
     "githubPullRequests.defaultMergeMethod": "squash",
     "git.mergeEditor": true,
     "window.commandCenter": true,
-    "editor.experimental.stickyScroll.enabled": true,
     "remote.SSH.externalSSH_ASKPASS": true,
+    "editor.stickyScroll.enabled": true,
+    "terminal.integrated.shellArgs.linux": [ "-l" ],
+    "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
+    "settingsSync.ignoredSettings": [
+        "github-enterprise.uri"
+    ]
 }

@@ -15,7 +15,7 @@ cenv(){
     sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted (non-empty)>/" | \
     sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted (non-empty)>/" | \
     sed -E "s/(.*)SECRET(.*)=(.+)/\1SECRET\2=<redacted (non-empty)>/" | \
-    sed -E "s/(.*)ROLE_ID=(.+)/\1ROLE_ID=<redacted (non-empty)>/" | \
+    sed -E "s/(.*)ROLE_ID(.*)=(.+)/\1ROLE_ID\2=<redacted (non-empty)>/" | \
     sed -E "s/(.*)=$/\1=<empty>/"
 }
 
@@ -103,7 +103,7 @@ copy-dotfiles() {
     rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
     rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.pdbrc,.zshrc,brew.sh,.vimrc} $target
     rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
-    rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json $target/vscode
+    rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
 
 focus-personal(){
