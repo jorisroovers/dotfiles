@@ -6,7 +6,7 @@ brew --version || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.github
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" # ensure we can use brew below
 
 install_brew_package(){
-    brew info $1 || brew install -v $1
+    brew list $1 || brew install -v $1
 }
 
 install_brew_package lsd
