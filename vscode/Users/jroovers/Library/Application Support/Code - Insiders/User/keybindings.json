@@ -4,8 +4,40 @@
         "key": "cmd+c",
         "command": "workbench.action.terminal.sendSequence",
         "args": {
-            "text": "\u0003"
+            "text": "\u0003" // c = 3 position in alphabet. hex(3) = 3
         },
         "when": "terminalFocus && !terminalTextSelected"
+    },
+    {
+        "key": "cmd+e", // end of line
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "\u0005" // e = 5 position in alphabet. hex(5) = 5
+        },
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+a", // start of line
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "\u0001", // a = 1 position in alphabet. hex(1) = 1
+            "when": "terminalFocus"
+        },
+    },
+    {
+        "key": "cmd+u", // clear text
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "\u0015", // u = 21 position in alphabet. hex(21) = 15
+            "when": "terminalFocus"
+        },
+    },
+    {
+        "key": "cmd+r", // reverse search
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "\u0012", // u = 18 position in alphabet. hex(18) = 12
+            "when": "terminalFocus"
+        },
     }
 ]

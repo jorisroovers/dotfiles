@@ -13,7 +13,10 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-    "editor.rulers": [80, 120],
+    "editor.rulers": [
+        80,
+        120
+    ],
     "explorer.confirmDragAndDrop": false,
     "explorer.openEditors.visible": 5,
     "gitlens.advanced.messages": {
@@ -125,7 +128,10 @@
     "window.commandCenter": true,
     "remote.SSH.externalSSH_ASKPASS": true,
     "editor.stickyScroll.enabled": true,
-    "terminal.integrated.shellArgs.linux": [ "-l" ],
+    "terminal.integrated.shellArgs.linux": [
+        "-l"
+    ],
+    "terminal.integrated.scrollback": 10000,
     "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
     "settingsSync.ignoredSettings": [
         "github-enterprise.uri"
