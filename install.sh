@@ -17,6 +17,7 @@ install_brew_package jq
 install_brew_package gh
 install_brew_package ripgrep
 install_brew_package oh-my-posh
+install_brew_package fzf
 
 # Nerd-font installation doesn't work via homebrew on linux (only on macOS),
 # but oh-my-posh provides a way to install it easily :-)
@@ -30,6 +31,6 @@ ln -fs $PWD/{.vimrc,.vimhelp} ~
 ln -fs $PWD/{.utils.py,.aliases_functions.sh} ~
 ln -fs $PWD/.joris.omp.json ~
 ln -fs $PWD/{.bash_profile,.env.sh} ~
-ln -fs $PWD/{.gitconfig,.gitignore_global} ~
+ln -fs $PWD/{.gitconfig,.gitignore_global,.gituserinfo} ~
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
 ln -fs $PWD/.config/gh/config.yml ~/.config/gh/config.yml

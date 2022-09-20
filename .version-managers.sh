@@ -11,7 +11,10 @@
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
 # pyenv (Python): https://github.com/pyenv/pyenv
-eval "$(pyenv init -)"
+# eval "$(pyenv init -)"
+
+# ASDF (version manager to rule them all!): https://asdf-vm.com/
+[[ -s "$(brew --prefix asdf)/libexec/asdf.sh" ]] && source "$(brew --prefix asdf)/libexec/asdf.sh"
 
 # sdkman (Java): https://sdkman.io/
 export SDKMAN_DIR="$HOME/.sdkman"

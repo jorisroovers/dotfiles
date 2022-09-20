@@ -101,8 +101,13 @@ copy-dotfiles() {
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
     rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
-    rsync --relative ~/./{.gitconfig,.gitignore_global,.joris.omp.json,.utils.py,.pdbrc,.zshrc,brew.sh,.vimrc} $target
+    rsync --relative ~/./{.tool-versions,.joris.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
+    # git
+    rsync --relative ~/./{.gitconfig,.gitignore_global} $target
+    # python
+    rsync --relative ~/./{.pdbrc,.pythonrc.py} $target
     rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
+    # vscode
     rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
 

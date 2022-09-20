@@ -1,6 +1,10 @@
 .DS_Store
 .idea
 .vagrant
+
+# VS Code
 .vscode
 *.code-workspace
 
+# asdf
+.tool-versions 

@@ -99,7 +99,7 @@
     },
     "workbench.editor.limit.enabled": true,
     "workbench.editor.limit.value": 5,
-    "python.languageServer": "Default",
+    "python.languageServer": "Pylance",
     "workbench.editorAssociations": {
         "*.ipynb": "jupyter-notebook"
     },

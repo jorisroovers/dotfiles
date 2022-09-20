@@ -28,6 +28,7 @@ export PATH
 export PIP_REQUIRE_VIRTUALENV=true
 # Use pdbr for debugging: 
 export PYTHONBREAKPOINT=pdbr.set_trace
+export PYTHONSTARTUP="$HOME/.pythonrc.py"
 
 ### MISC ###############################################################################################################
 
