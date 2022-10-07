@@ -106,7 +106,8 @@ copy-dotfiles() {
     rsync --relative ~/./{.gitconfig,.gitignore_global} $target
     # python
     rsync --relative ~/./{.pdbrc,.pythonrc.py} $target
-    rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml} $target
+    # Misc
+    rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml,.hammerspoon/cheatsheets.lua} $target
     # vscode
     rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
@@ -193,7 +194,12 @@ alias dl="desk list"
 desk_choose(){
     desk list | choose | awk '{print $1}'
 }
+
 ds() { # Desk "switch"
+    if [ $SHLVL -gt 1 ]; then
+        echo "Exiting current subshell; run ds again"
+        kill $$
+    fi
     desk go $(desk_choose)
 }
 de(){

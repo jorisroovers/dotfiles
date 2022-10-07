@@ -28,9 +28,10 @@ oh-my-posh font install hack
 # TODO: do install of `cat brew.sh  | grep -v '#'`
 
 ln -fs $PWD/{.vimrc,.vimhelp} ~
-ln -fs $PWD/{.utils.py,.aliases_functions.sh} ~
+ln -fs $PWD/{.utils.py,.aliases_functions.sh,.version-managers.sh} ~
 ln -fs $PWD/.joris.omp.json ~
 ln -fs $PWD/{.bash_profile,.env.sh} ~
-ln -fs $PWD/{.gitconfig,.gitignore_global,.gituserinfo} ~
+ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
+ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
 ln -fs $PWD/.config/gh/config.yml ~/.config/gh/config.yml

@@ -133,7 +133,7 @@
     ],
     "terminal.integrated.scrollback": 10000,
     "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
-    "settingsSync.ignoredSettings": [
-        "github-enterprise.uri"
-    ]
+    "[css]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    }
 }
