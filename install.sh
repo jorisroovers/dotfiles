@@ -18,6 +18,7 @@ install_brew_package gh
 install_brew_package ripgrep
 install_brew_package oh-my-posh
 install_brew_package fzf
+install_brew_package vim
 
 # Nerd-font installation doesn't work via homebrew on linux (only on macOS),
 # but oh-my-posh provides a way to install it easily :-)
