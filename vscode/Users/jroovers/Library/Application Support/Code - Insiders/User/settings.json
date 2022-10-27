@@ -42,7 +42,6 @@
     },
     "gitlens.keymap": "chorded",
     "vsnotes.defaultNotePath": "/Users/jroovers/Documents/tmp",
-    "window.zoomLevel": 0,
     "breadcrumbs.enabled": true,
     "python.jediEnabled": false,
     "go.formatTool": "goimports",
@@ -135,5 +134,8 @@
     "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
     "[css]": {
         "editor.defaultFormatter": "vscode.css-language-features"
-    }
+    },
+    "[python]": {
+    },
+    "http.proxy": "http://192.168.40.123:3128"
 }

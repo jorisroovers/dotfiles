@@ -12,8 +12,8 @@ alias reload='exec zsh'
 # https://ohmyz.sh/
 plugins=(gitfast)
 
-export ZSH="$HOME/.oh-my-zsh"
-source $ZSH/oh-my-zsh.sh
+[ -f ~/.oh-my-zsh ] && export ZSH="$HOME/.oh-my-zsh"
+[ -f ~/.oh-my-zsh ] && source $ZSH/oh-my-zsh.sh
 
 ### ENVIRONMENT (GENERIC) ##############################################################################################
 
@@ -22,8 +22,7 @@ source $ZSH/oh-my-zsh.sh
 ### ITERM2 #############################################################################################################
 # https://iterm2.com/
 # Activate shell integration. Install via "iTerm2>Install Shell Integration" menu item.
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
+[ -f  ~/.iterm2_shell_integration.zsh ] && source ~/.iterm2_shell_integration.zsh
 
 ### VERSION MANAGERS ###################################################################################################
 # Needs to happen early, for runtimes to be available for scripts below

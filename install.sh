@@ -30,7 +30,7 @@ oh-my-posh font install hack
 ln -fs $PWD/{.vimrc,.vimhelp} ~
 ln -fs $PWD/{.utils.py,.aliases_functions.sh,.version-managers.sh} ~
 ln -fs $PWD/.joris.omp.json ~
-ln -fs $PWD/{.bash_profile,.env.sh} ~
+ln -fs $PWD/{.zshrc,.bash_profile,.env.sh} ~
 ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
