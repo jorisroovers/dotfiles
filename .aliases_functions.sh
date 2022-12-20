@@ -225,9 +225,16 @@ hvault_login(){
 }
 
 ### ANSIBLE  ###########################################################################################################
-export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
-# re-use (a)ssh controlpath for ssh connections
-export ANSIBLE_SSH_EXTRA_ARGS="-o ControlMaster=auto -o ControlPersist=yes -o ControlPath=~/.ssh/socket-%h-%p-%r.sock"
+#export ANSIBLE_VAULT_PASSWORD_FILE="~/.ansible-vault-password"
+
+# Re-use (a)ssh controlpath for ssh connections
+# ANSIBLE_SSH_COMMON_ARGS applies to ssh/scp/sftp connections, vs. ANSIBLE_SSH_EXTRA_ARGS which is for SSH only
+export ANSIBLE_SSH_COMMON_ARGS="-o ControlMaster=auto -o ControlPersist=yes -o ControlPath=~/.ssh/socket-%h-%p-%r.sock"
+
+# Speeds up connections, but can cause issues with some target hosts:
+# https://docs.ansible.com/ansible/latest/reference_appendices/config.html#ansible-pipelining
+export ANSIBLE_PIPELINING=1
+
 
 ansible-vault-get(){
     local VAULT="$(ansible-vault view ~/repos/casa-data/group_vars/all)"

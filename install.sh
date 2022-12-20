@@ -26,6 +26,10 @@ install_brew_package vim
 # client-side (so really no need to install in .e.g Github Codespace
 oh-my-posh font install hack
 
+# Install fzf commandline completion
+$(brew --prefix)/opt/fzf/install
+
+
 # TODO: do install of `cat brew.sh  | grep -v '#'`
 
 ln -fs $PWD/{.vimrc,.vimhelp} ~

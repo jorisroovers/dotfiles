@@ -136,6 +136,8 @@
         "editor.defaultFormatter": "vscode.css-language-features"
     },
     "[python]": {
+        "editor.formatOnType": true
     },
-    "http.proxy": "http://192.168.40.123:3128"
+    "http.proxy": "http://192.168.40.123:3128",
+    "githubPullRequests.pullBranch": "never"
 }

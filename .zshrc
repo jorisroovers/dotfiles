@@ -6,6 +6,11 @@ unsetopt AUTO_CD
 # Allow '#' to be used as a comment character in shell sessions
 setopt interactivecomments
 
+# For terminal editing, use emacs keybindings (CTRL+A, CTRL+E for start/end of line, etc)
+# This is required to override zsh subshells starting in vi mode because EDITOR=vim is set in .env.sh
+# Context: https://zsh.sourceforge.io/Guide/zshguide04.html
+bindkey -e
+
 alias reload='exec zsh'
 
 ### OH-MY-ZSH ##########################################################################################################

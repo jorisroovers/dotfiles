@@ -26,6 +26,11 @@ export PATH
 
 # Ensure pip will only install in virtualenvs
 export PIP_REQUIRE_VIRTUALENV=true
+
+# Make Hatch use the local virtualenv
+# https://hatch.pypa.io/1.6/plugins/environment/virtual/#options
+export HATCH_ENV_TYPE_VIRTUAL_PATH=".venv"
+
 # Use pdbr for debugging: 
 export PYTHONBREAKPOINT=pdbr.set_trace
 export PYTHONSTARTUP="$HOME/.pythonrc.py"
