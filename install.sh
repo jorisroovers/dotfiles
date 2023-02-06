@@ -27,7 +27,7 @@ install_brew_package vim
 oh-my-posh font install hack
 
 # Install fzf commandline completion
-$(brew --prefix)/opt/fzf/install
+$(brew --prefix)/opt/fzf/install --all
 
 
 # TODO: do install of `cat brew.sh  | grep -v '#'`
@@ -39,4 +39,5 @@ ln -fs $PWD/{.zshrc,.bash_profile,.env.sh} ~
 ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
+mkdir  ~/.config/gh # Create ~/.config/gh dir if it doesn't already exist
 ln -fs $PWD/.config/gh/config.yml ~/.config/gh/config.yml
