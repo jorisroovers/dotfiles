@@ -44,7 +44,7 @@ plugins=(gitfast)
 ### OH-MY-POSH #########################################################################################################
 # https://ohmyposh.dev/
 if [ $TERM_PROGRAM != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ~/.joris.omp.json)"
+  eval "$(oh-my-posh init zsh --config ~/.joris-newline.omp.json)"
 fi
 
 ### FZF ################################################################################################################

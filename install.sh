@@ -34,7 +34,7 @@ $(brew --prefix)/opt/fzf/install --all
 
 ln -fs $PWD/{.vimrc,.vimhelp} ~
 ln -fs $PWD/{.utils.py,.aliases_functions.sh,.version-managers.sh} ~
-ln -fs $PWD/.joris.omp.json ~
+ln -fs $PWD/.*.omp.json ~
 ln -fs $PWD/{.zshrc,.bash_profile,.env.sh} ~
 ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~

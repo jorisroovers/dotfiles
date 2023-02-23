@@ -14,6 +14,7 @@ For my commandline prompt, I use https://ohmyposh.dev/
 
 # Notes
 
-When having issues with overwritin .ssh/assh.yml, it's probably because there's
-still a linger assh session. Use `fuser .ssh/assh.yml` to find the process and
-kill it.
+When having issues with overwriting .ssh/assh.yml, it's probably because there's
+still a linger assh session. Use `lsof | grep assh.yml` to find the process and
+kill it (`fuser .ssh/assh.yml` doesn't always work).
+`ps -ef | grep assh` can also be used to identify this process.

@@ -32,7 +32,7 @@ FZF_DEFAULT_OPTS="--history-size=3000"
 
 ### OH-MY-POSH #########################################################################################################
 # https://ohmyposh.dev/
-eval "$(oh-my-posh init bash --config ~/.joris.omp.json)"
+eval "$(oh-my-posh init bash --config ~/.joris-newline.omp.json)"
 
 
 
