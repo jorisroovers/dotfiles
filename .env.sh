@@ -8,6 +8,13 @@ export LANG=en_US.UTF-8
 HISTSIZE=1000       # history of a single terminal session, saved in RAM
 HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
+
+### BREW ###############################################################################################################
+
+# On Apple Silicon, Homebrew is installed in /opt/homebrew and needs to be added to the PATH explicitly
+# https://earthly.dev/blog/homebrew-on-m1/
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 ### PATH ###############################################################################################################
 
 prependpath() {
@@ -25,7 +32,7 @@ export PATH
 ### PYTHON #############################################################################################################
 
 # Ensure pip will only install in virtualenvs
-export PIP_REQUIRE_VIRTUALENV=true
+#export PIP_REQUIRE_VIRTUALENV=true
 
 # Make Hatch use the local virtualenv
 # https://hatch.pypa.io/1.6/plugins/environment/virtual/#options

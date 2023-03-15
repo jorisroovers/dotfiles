@@ -107,7 +107,7 @@ copy-dotfiles() {
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
     rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
-    rsync --relative ~/./{.tool-versions,.*.omp.json,.utils.py,.zshrc,brew.sh,.vimrc} $target
+    rsync --relative ~/./{.tool-versions,.*.omp.json,.utils.py,.zshrc,.vimrc} $target
     # git
     rsync --relative ~/./{.gitconfig,.gitignore_global} $target
     # python

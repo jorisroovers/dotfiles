@@ -93,7 +93,9 @@
             ]
         },
         {
-            "type": "rprompt",
+            "type": "prompt",
+            "alignment": "right",
+            // "newline": true,
             "segments": [
                 {
                     "background": "transparent",

@@ -1,5 +1,8 @@
+# RTX (https://github.com/jdxcode/rtx)
+[[ -s "$(brew --prefix rtx)/bin/rtx" ]] && eval "$($(brew --prefix rtx)/bin/rtx activate zsh)"
+
 # ASDF (version manager to rule them all!): https://asdf-vm.com/
-[[ -s "$(brew --prefix asdf)/libexec/asdf.sh" ]] && source "$(brew --prefix asdf)/libexec/asdf.sh"
+# [[ -s "$(brew --prefix asdf)/libexec/asdf.sh" ]] && source "$(brew --prefix asdf)/libexec/asdf.sh"
 
 # GVM (Go): https://github.com/moovweb/gvm
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source $HOME/.gvm/scripts/gvm

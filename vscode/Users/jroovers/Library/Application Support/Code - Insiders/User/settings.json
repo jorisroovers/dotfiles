@@ -145,5 +145,6 @@
     "hediet.vscode-drawio.resizeImages": null,
     "terminal.integrated.defaultProfile.linux": "zsh",
     "jupyter.askForKernelRestart": false,
-    "ruff.importStrategy": "fromEnvironment"
+    "ruff.importStrategy": "fromEnvironment",
+    "jupyter.themeMatplotlibPlots": true
 }
