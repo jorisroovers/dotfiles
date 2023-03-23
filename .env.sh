@@ -42,6 +42,11 @@ export HATCH_ENV_TYPE_VIRTUAL_PATH=".venv"
 export PYTHONBREAKPOINT=pdbr.set_trace
 export PYTHONSTARTUP="$HOME/.pythonrc.py"
 
+### Github Co Pilot ####################################################################################################
+
+# Install ?? gh?? and git?? aliases
+which github-copilot-cli &> /dev/null && eval "$(github-copilot-cli alias -- "$0")"
+
 ### MISC ###############################################################################################################
 
 export PGM_KEY_FILE=~/keys/pgm.pem
