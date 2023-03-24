@@ -1,5 +1,5 @@
 # RTX (https://github.com/jdxcode/rtx)
-[[ -s "$(brew --prefix rtx)/bin/rtx" ]] && eval "$($(brew --prefix rtx)/bin/rtx activate zsh)"
+[[ -s "$(brew --prefix rtx)/bin/rtx" ]] && eval "$($(brew --prefix rtx)/bin/rtx activate $SHELL_NAME)"
 
 # ASDF (version manager to rule them all!): https://asdf-vm.com/
 # [[ -s "$(brew --prefix asdf)/libexec/asdf.sh" ]] && source "$(brew --prefix asdf)/libexec/asdf.sh"
