@@ -33,7 +33,9 @@ prependpath '/usr/local/bin'
 prependpath "$HOME/.local/bin"
 prependpath "$HOME/bin"
 prependpath "$HOME/.cargo/bin" # cargo (rust)
-prependpath "$HOME/.rd/bin"    # Rancher Desktop
+# prependpath "$HOME/.rd/bin"    # Rancher Desktop
+
+# [ -f /usr/local/anaconda3/bin/conda ] && prependpath "/usr/local/anaconda3/bin"
 
 # unset prependpath
 export PATH

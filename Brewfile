@@ -24,6 +24,7 @@ brew 'gh'
 brew 'oh-my-posh'
 brew 'fzf'
 brew 'vim'
+brew 'helix'
 brew 'watch'
 brew 'wget'
 

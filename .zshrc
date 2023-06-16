@@ -40,3 +40,4 @@ plugins=(gitfast)
 # https://github.com/jamesob/desk
 # TODO: consider using https://github.com/direnv/direnv instead
 [ -n "$DESK_ENV" ] && source "$DESK_ENV" || true
+

@@ -113,10 +113,11 @@
     "redhat.telemetry.enabled": false,
     "editor.inlineSuggest.enabled": true,
     "github.copilot.enable": {
-        "*": true,
-        "yaml": true,
+        "*": false,
         "plaintext": false,
-        "markdown": false
+        "markdown": false,
+        "scminput": false,
+        "yaml": true
     },
     "python.formatting.provider": "black",
     "security.workspace.trust.untrustedFiles": "open",
@@ -130,7 +131,6 @@
         "-l"
     ],
     "terminal.integrated.scrollback": 10000,
-    "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
     "[css]": {
         "editor.defaultFormatter": "vscode.css-language-features"
     },
@@ -146,5 +146,8 @@
     "terminal.integrated.defaultProfile.linux": "zsh",
     "jupyter.askForKernelRestart": false,
     "ruff.importStrategy": "fromEnvironment",
-    "jupyter.themeMatplotlibPlots": true
+    "jupyter.themeMatplotlibPlots": true,
+    "codeQL.telemetry.enableTelemetry": false,
+    "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
+    "workbench.colorTheme": "Default Light Modern"
 }

@@ -106,16 +106,17 @@ copy-dotfiles() {
     target="joris@menthol.local:~/repos/dotfiles"
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
-    rsync --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
-    rsync --relative ~/./{.tool-versions,.*.omp.json,.utils.py,.zshrc,.vimrc} $target
+    # --copy-links: if the local files are symlinks, resolve them first and copy the actual files, not the symlinks
+    rsync --copy-links --relative ~/./{.env.sh,.aliases_functions.sh,.version-managers.sh} $target
+    rsync --copy-links --relative ~/./{.tool-versions,.*.omp.json,.utils.py,.zshrc,.vimrc} $target
     # git
-    rsync --relative ~/./{.gitconfig,.gitignore_global} $target
+    rsync --copy-links --relative ~/./{.gitconfig,.gitignore_global} $target
     # python
-    rsync --relative ~/./{.pdbrc,.pythonrc.py} $target
+    rsync --copy-links --relative ~/./{.pdbrc,.pythonrc.py} $target
     # Misc
-    rsync --relative ~/./{.config/gh/config.yml,.ssh/assh.yml,.hammerspoon/cheatsheets.lua} $target
+    rsync --copy-links --relative ~/./{.config/gh/config.yml,.ssh/assh.yml,.hammerspoon/cheatsheets.lua} $target
     # vscode
-    rsync --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
+    rsync --copy-links --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
 
 focus-personal(){
@@ -222,7 +223,9 @@ pypaths() {
 ### HASHICORP VAULT ####################################################################################################
 
 hvault_login(){
-    error_msg="Required env vars: VAULT_ROLE_ID, VAULT_SECRET_ID"
+    error_msg="Required env vars: VAULT_ADDR, VAULT_NAMESPACE, VAULT_ROLE_ID, VAULT_SECRET_ID"
+    [ -z ${VAULT_ADDR} ] && echo $error_msg && return 1
+    [ -z ${VAULT_NAMESPACE} ] && echo $error_msg && return 1
     [ -z ${VAULT_ROLE_ID} ] && echo $error_msg && return 1
     [ -z ${VAULT_SECRET_ID} ] && echo $error_msg && return 1
 
