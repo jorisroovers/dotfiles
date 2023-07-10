@@ -90,6 +90,7 @@ temp-filepath(){
 ### PROCESS MGMT #######################################################################################################
 
 mykill(){
+    # TODO: also consider fkill: https://github.com/sindresorhus/fkill-cli
     process=$(ps -ef | rg -i $1 | choose)
     echo $process | awk '{print $2}' | xargs kill -9
     echo "Killed: $process"
@@ -132,6 +133,19 @@ focus-work(){
     open -a 'Microsoft Outlook'
     open -a 'Webex Teams'
 }
+
+
+darkmode(){
+    unset FZF_DEFAULT_OPTS
+    git config --global delta.light false
+}
+
+lightmode(){
+    export FZF_DEFAULT_OPTS='--color=light'
+    git config --global delta.light true
+}
+
+
 
 ### PROGRAM OVERRIDES  #################################################################################################
 alias cat='bat'                 # https://github.com/sharkdp/bat

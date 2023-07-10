@@ -8,8 +8,17 @@ export LANG=en_US.UTF-8
 HISTSIZE=1000       # history of a single terminal session, saved in RAM
 HISTFILESIZE=10000  # size of the history file, usually ~/.bash_history). 
 
-# Extract SHELL_NAME from the full path
-SHELL_NAME="${SHELL##*/}"
+# Determine SHELL_NAME
+# We use to do this from the full path of $SHELL (similar to using $0), but the problem is that
+# SHELL points to the login/default shell, which is not necessarily the shell we are currently using.
+# SHELL_NAME="${SHELL##*/}" # this doesn't work reliably
+if [ -n "$BASH_VERSION" ]; then
+    SHELL_NAME="bash"
+elif [ -n "$ZSH_VERSION" ]; then
+    SHELL_NAME="zsh"
+else
+    SHELL_NAME="unknown"
+fi
 
 ### ITERM2 #############################################################################################################
 # https://iterm2.com/
