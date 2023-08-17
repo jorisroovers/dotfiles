@@ -4,19 +4,34 @@ alias fchoose="ls | choose"
 
 # Check environment variables: shorthand or `env | grep i <foo>`. Redacts passwords and tokens.
 cenv(){
-    # Filter output
+    # Parse options
+    redact_data=1
+    if [ "$1" = "--help" ]; then
+        echo "-p: plain (don't redact)"
+        return
+    elif [ "$1" = "-p" ]; then
+        redact_data=0
+        shift
+    fi
+
+    # Filter output (print all if nothing is passed)
     if [ -n "$1" ]; then
         output=$(env | grep -i $1 --color=always)
     else
         output=$(env)
     fi
+    
     # Redact passwords and tokens, mark empty vars
-    echo $output |  \
-    sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted (non-empty)>/" | \
-    sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted (non-empty)>/" | \
-    sed -E "s/(.*)SECRET(.*)=(.+)/\1SECRET\2=<redacted (non-empty)>/" | \
-    sed -E "s/(.*)ROLE_ID(.*)=(.+)/\1ROLE_ID\2=<redacted (non-empty)>/" | \
-    sed -E "s/(.*)=$/\1=<empty>/"
+    if [ $redact_data -eq 1 ]; then
+        echo $output |  \
+        sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted (non-empty)>/" | \
+        sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted (non-empty)>/" | \
+        sed -E "s/(.*)SECRET(.*)=(.+)/\1SECRET\2=<redacted (non-empty)>/" | \
+        sed -E "s/(.*)ROLE_ID(.*)=(.+)/\1ROLE_ID\2=<redacted (non-empty)>/" | \
+        sed -E "s/(.*)=$/\1=<empty>/"
+    else
+        echo $output
+    fi
 }
 
 # Unset env vars based on regex matching (case insensitive)
@@ -41,7 +56,8 @@ sl(){
 
 # Shows definition of passed alias or function
 define(){
-    type $1
+    # type $1
+    alias $1 | bat -p --language sh # this is a no-op on functions, so we can safely run it on both aliases and functions
     declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
 
@@ -85,6 +101,12 @@ random-filename(){
 
 temp-filepath(){
     echo "/tmp/$(random-filename $1)"
+}
+
+### HARDWARE ###########################################################################################################
+
+cputemp(){
+    sudo powermetrics --samplers smc |grep -i "CPU die temperature"
 }
 
 ### PROCESS MGMT #######################################################################################################
