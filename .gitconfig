@@ -10,6 +10,7 @@
     pager = delta
     # https://github.blog/2022-06-27-highlights-from-git-2-37/#a-builtin-filesystem-monitor-for-windows-and-macos
     fsmonitor = true
+	ignorecase = false
 
     #pager = "diff-so-fancy | less --tabs=4 -RFX"
 [color]
@@ -34,6 +35,7 @@
     features = side-by-side line-numbers decorations
     whitespace-error-style = 22 reverse
     navigate = true    # use n and N to move between diff sections
+	light = false
 
 [delta "decorations"]
     commit-decoration-style = bold yellow box ul

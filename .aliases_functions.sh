@@ -36,7 +36,9 @@ cenv(){
 
 # Unset env vars based on regex matching (case insensitive)
 unsetall(){
-    unset $(env | grep -i $1 | awk -F "=" '{print $1}')
+    vars="$(env | grep -i $1 | awk -F "=" '{print $1}')"
+    unset $vars
+    echo "Unset: $vars"
 }
 
 # Edit an ENV VAR in $EDITOR, then export it back to the shell
@@ -51,14 +53,15 @@ editvar(){
 
 # Select dotfile to source from .rc directory
 sl(){
-    source $(find ~/.rc  -type f | choose)
+    # find -L: follow symlinks
+    source $(find -L ~/.rc  -type f | choose)
 }
 
 # Shows definition of passed alias or function
 define(){
     # type $1
     alias $1 | bat -p --language sh # this is a no-op on functions, so we can safely run it on both aliases and functions
-    declare -f $1 | bat -p --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
+    declare -f $1 | bat --style numbers,grid --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
 
 # default: returns a default value if STDIN is empty, otherwise return STDIN
@@ -103,6 +106,27 @@ temp-filepath(){
     echo "/tmp/$(random-filename $1)"
 }
 
+### NETWORKING #########################################################################################################
+
+set-etc-hosts() {
+    if [ -z "$1" ] || [ -z "$2" ]; then
+        echo "Usage: $0 <hostname> <ip-address>"
+        return 1
+    fi
+
+    HOSTNAME="$1"
+    NEW_IP="$2"
+
+    if grep -q "$HOSTNAME" /etc/hosts; then
+        # sudo sed -i "" "s/^[0-9\.]*\s*$HOSTNAME/$NEW_IP $HOSTNAME/" /etc/hosts
+        sudo sed -i "" "s/^[0-9\.]* $HOSTNAME/$NEW_IP $HOSTNAME/" /etc/hosts
+        echo "IP address for $HOSTNAME updated to $NEW_IP."
+    else
+        echo "$HOSTNAME not found in /etc/hosts. Adding $NEW_IP $HOSTNAME."
+        sudo sh -c "echo '$NEW_IP $HOSTNAME' >> /etc/hosts"
+    fi
+}
+
 ### HARDWARE ###########################################################################################################
 
 cputemp(){
@@ -142,6 +166,30 @@ copy-dotfiles() {
     rsync --copy-links --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
 
+### TERMINAL ###########################################################################################################
+
+darkmode(){
+    # Set black background, white text
+    # echo -e "\033]Ph000000\033\\"
+    # foreground color not working :(
+    # echo -e "\033]PiFFFFFF\033\\"
+
+    unset FZF_DEFAULT_OPTS
+    git config --global delta.light false
+}
+
+lightmode(){
+    # Set white background, black text
+    # echo -e "\033]PhFFFFFF\033\\"
+    # foreground color not working :(
+    # echo -e "\033]Pi000000\033\\"
+
+    export FZF_DEFAULT_OPTS='--color=light'
+    git config --global delta.light true
+}
+
+### WORK MODES  ########################################################################################################
+
 focus-personal(){
     pkill "Microsoft Excel"
     pkill "Microsoft PowerPoint"
@@ -156,18 +204,20 @@ focus-work(){
     open -a 'Webex Teams'
 }
 
-
-darkmode(){
-    unset FZF_DEFAULT_OPTS
-    git config --global delta.light false
+focus-outside(){
+    set-etc-hosts httpproxy 192.168.8.1
+    # Send all traffic for home network via GLINet router
+    sudo route -n add 192.168.0.0/16 192.168.8.1
+    lightmode
+    echo "Terminal set to light mode"
 }
 
-lightmode(){
-    export FZF_DEFAULT_OPTS='--color=light'
-    git config --global delta.light true
+focus-desk(){
+    set-etc-hosts httpproxy 192.168.40.123
+    sudo route -n delete 192.168.0.0/16 192.168.8.1
+    darkmode
+    echo "Terminal set to dark mode"
 }
-
-
 
 ### PROGRAM OVERRIDES  #################################################################################################
 alias cat='bat'                 # https://github.com/sharkdp/bat
@@ -246,7 +296,9 @@ ds() { # Desk "switch"
     desk go $(desk_choose)
 }
 de(){
-    code-insiders ~/.desk/desks/$(desk_choose).sh
+    # Find the first desk with matching name in the ~/.desk/ directory
+    desk_path=$(find ~/.desk/ -name "$(desk_choose)*" -print -quit)
+    code $desk_path
 }
 
 ### PYTEST #############################################################################################################

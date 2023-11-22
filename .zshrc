@@ -11,6 +11,9 @@ setopt interactivecomments
 # Context: https://zsh.sourceforge.io/Guide/zshguide04.html
 bindkey -e
 
+# Load shell completion (for git, etc)
+autoload -Uz compinit && compinit
+
 alias reload='exec zsh'
 
 ### OH-MY-ZSH ##########################################################################################################
@@ -40,4 +43,3 @@ plugins=(gitfast)
 # https://github.com/jamesob/desk
 # TODO: consider using https://github.com/direnv/direnv instead
 [ -n "$DESK_ENV" ] && source "$DESK_ENV" || true
-

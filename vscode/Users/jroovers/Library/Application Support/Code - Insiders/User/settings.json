@@ -135,7 +135,8 @@
         "editor.defaultFormatter": "vscode.css-language-features"
     },
     "[python]": {
-        "editor.formatOnType": true
+        "editor.formatOnType": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "githubPullRequests.pullBranch": "never",
     "http.proxyStrictSSL": false,
@@ -149,5 +150,26 @@
     "jupyter.themeMatplotlibPlots": true,
     "codeQL.telemetry.enableTelemetry": false,
     "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
-    "workbench.colorTheme": "Default Light Modern"
+    "black-formatter.args": [
+        "--line-length=120  "
+    ],
+    "jupyter.widgetScriptSources": [
+        "jsdelivr.com",
+        "unpkg.com"
+    ],
+    "cSpell.userWords": [
+        "ADHOCDB",
+        "areachart",
+        "dataframe",
+        "datapoint",
+        "datapoints",
+        "jroovers",
+        "jupysql",
+        "linechart",
+        "notna",
+        "openpyxl",
+        "oracledb",
+        "piechart",
+        "sqlalchemy"
+    ]
 }
