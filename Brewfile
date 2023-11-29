@@ -16,8 +16,8 @@ brew 'assh'    # ssh
 # Other essentials
 # pstree
 
-brew 'tree'  
-brew 'git'  
+brew 'tree'
+brew 'git'
 brew 'git-delta'
 brew 'jq'
 brew 'gh'
@@ -51,6 +51,7 @@ cask "font-hack-nerd-font"
 # ansible
 # desk
 # dive
+# jesseduffield/lazydocker/lazydocker
 # ffmpeg
 # fx
 # gh
