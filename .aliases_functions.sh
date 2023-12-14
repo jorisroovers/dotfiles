@@ -20,17 +20,25 @@ cenv(){
     else
         output=$(env)
     fi
-    
-    # Redact passwords and tokens, mark empty vars
+
+    # Redacting
     if [ $redact_data -eq 1 ]; then
-        echo $output |  \
-        sed -E "s/(.*)PASSWORD=(.+)/\1PASSWORD=<redacted (non-empty)>/" | \
-        sed -E "s/(.*)TOKEN=(.+)/\1TOKEN=<redacted (non-empty)>/" | \
-        sed -E "s/(.*)SECRET(.*)=(.+)/\1SECRET\2=<redacted (non-empty)>/" | \
-        sed -E "s/(.*)ROLE_ID(.*)=(.+)/\1ROLE_ID\2=<redacted (non-empty)>/" | \
-        sed -E "s/(.*)=$/\1=<empty>/"
+        # Extract sensitive values
+        sensitive_values=()
+        for var in $(echo "$output"  | grep -E "PASSWORD|TOKEN|SECRET|KEY|ROLE_ID" | cut -d '=' -f 2); do
+            escaped_val=$(echo "$var" | sed 's/[]\/$*.^[]/\\&/g')
+            sensitive_values+=($escaped_val)
+        done
+
+        # Redact sensitive values from all variables
+        for val in "${sensitive_values[@]}"; do
+            output=$(echo "$output" | sed -E "s/$val/<redacted>/g")
+        done
+
+        # Mark empty variables and exclude PS1
+        echo "$output" | grep -ve "^PS1" | sed -E "s/([^=]+)=$/\1=<empty>/"
     else
-        echo $output
+        echo "$output"
     fi
 }
 
@@ -150,7 +158,7 @@ unbloat(){
 
 # Copies select dotfiles to dotfiles repo on `menthol` server
 copy-dotfiles() {
-    target="joris@menthol.local:~/repos/dotfiles"
+    target="joris@m2.local:~/repos/dotfiles"
     # use /./ in rsync to tell rsync to copy the path from that point forward
     # Thanks sir! https://serverfault.com/a/973844/166001
     # --copy-links: if the local files are symlinks, resolve them first and copy the actual files, not the symlinks
@@ -283,7 +291,7 @@ alias sce="code /tmp/scratchpad.txt"
 ### DESK  ##############################################################################################################
 
 # https://github.com/jamesob/desk
-alias dl="desk list"
+# alias dl="desk list" # conflicts with `alias dl='docker log'`
 desk_choose(){
     desk list | choose | awk '{print $1}'
 }
@@ -352,6 +360,26 @@ ansible-host(){
 ansible-inventory-get(){
     ansible-inventory -i ~/repos/casa-data/inventory/prod --host $1 | jq -r .$2
 }
+
+### Docker  ############################################################################################################
+
+function alias-docker(){
+    alias d='docker'
+    alias di='docker inspect'
+    alias dr='docker run'
+    alias dl='docker logs'
+    alias dk='docker kill'
+    alias dp='docker container prune'
+    alias dps='docker ps'
+    alias dil='docker image list'
+    alias dvl='docker volume list'
+    alias dnl='docker network list'
+
+    alias dc='docker-compose'
+}
+
+
+### KUBERNETES  ########################################################################################################
 
 ### VAGRANT  ###########################################################################################################
 alias v='vagrant'
