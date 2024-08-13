@@ -82,6 +82,9 @@ export PYTHONSTARTUP="$HOME/.pythonrc.py"
 
 ### MISC ###############################################################################################################
 
+# Bat's default theme on MacOS is hard to read in iTerm2
+export BAT_THEME=1337
+
 export PGM_KEY_FILE=~/keys/pgm.pem
 
 # Adds colors to grep on mac

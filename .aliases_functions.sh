@@ -1,3 +1,15 @@
+### PROGRAM OVERRIDES  #################################################################################################
+alias cat='bat'                 # https://github.com/sharkdp/bat
+#alias find='fd'                # https://github.com/sharkdp/fd
+alias ls="lsd"                  # https://github.com/Peltoche/lsdexport 
+alias ssh="assh wrapper ssh --" # https://github.com/moul/assh
+
+# Program aliases
+alias excel="open -a 'Microsoft Excel'"
+alias code="code-insiders"
+alias vscode="code-insiders"
+alias pc="pre-commit"
+
 ### SHELL UTILITIES ####################################################################################################
 alias choose="fzf --height 10"
 alias fchoose="ls | choose"
@@ -14,19 +26,14 @@ cenv(){
         shift
     fi
 
-    # Filter output (print all if nothing is passed)
-    if [ -n "$1" ]; then
-        output=$(env | grep -i $1 --color=always)
-    else
-        output=$(env)
-    fi
+    output=$(env)
 
     # Redacting
     if [ $redact_data -eq 1 ]; then
         # Extract sensitive values
         sensitive_values=()
-        for var in $(echo "$output"  | grep -E "PASSWORD|TOKEN|SECRET|KEY|ROLE_ID" | cut -d '=' -f 2); do
-            escaped_val=$(echo "$var" | sed 's/[]\/$*.^[]/\\&/g')
+        for var in $(echo "$output"  | grep -E "PASSWORD|TOKEN|SECRET|KEY|ROLE_ID" | cut -d '=' -f 2-); do
+            escaped_val=$(echo "$var" | sed 's/[]\/$*.^+[]/\\&/g')
             sensitive_values+=($escaped_val)
         done
 
@@ -36,17 +43,29 @@ cenv(){
         done
 
         # Mark empty variables and exclude PS1
-        echo "$output" | grep -ve "^PS1" | sed -E "s/([^=]+)=$/\1=<empty>/"
-    else
-        echo "$output"
+        output=$(echo "$output" | grep -ve "^PS1" | sed -E "s/([^=]+)=$/\1=<empty>/")
     fi
+
+    # Filter output if a search string is passed
+    if [ -n "$1" ]; then
+        output=$(echo "$output" | grep -i $1 --color=always)
+    fi
+
+    echo "$output"
 }
 
 # Unset env vars based on regex matching (case insensitive)
 unsetall(){
-    vars="$(env | grep -i $1 | awk -F "=" '{print $1}')"
-    unset $vars
-    echo "Unset: $vars"
+    # Get matching variable names as a newline-separated string
+    vars=$(env | grep -i "$1" | awk -F "=" '{print $1}')
+    # Convert newline-separated variable names to an array in a cross-shell compatible manner
+    if [[ -n "$vars" ]]; then
+        # Use a while loop to read each line
+        while IFS= read -r var; do
+            unset "$var"
+        echo "Unset: $var"
+        done <<< "$vars"
+    fi
 }
 
 # Edit an ENV VAR in $EDITOR, then export it back to the shell
@@ -61,9 +80,17 @@ editvar(){
 
 # Select dotfile to source from .rc directory
 sl(){
+    echo "Use alias 'se' to easily edit these files"
     # find -L: follow symlinks
     source $(find -L ~/.rc  -type f | choose)
 }
+
+se(){
+    echo "Use alias 'se' to easily edit these files"
+    # find -L: follow symlinks
+    code $(find -L ~/.rc  -type f | choose)
+}
+
 
 # Shows definition of passed alias or function
 define(){
@@ -227,18 +254,6 @@ focus-desk(){
     echo "Terminal set to dark mode"
 }
 
-### PROGRAM OVERRIDES  #################################################################################################
-alias cat='bat'                 # https://github.com/sharkdp/bat
-#alias find='fd'                # https://github.com/sharkdp/fd
-alias ls="lsd"                  # https://github.com/Peltoche/lsdexport 
-alias ssh="assh wrapper ssh --" # https://github.com/moul/assh
-
-# Program aliases
-alias excel="open -a 'Microsoft Excel'"
-alias code="code-insiders"
-alias vscode="code-insiders"
-alias pc="pre-commit"
-
 ### DATA WRANGLING  ####################################################################################################
 # .utils.py is a python script that contains functions for data wrangling
 # While some of these could be written as pure shell functions, python makes many functions simpler and portable across
@@ -376,6 +391,7 @@ function alias-docker(){
     alias dnl='docker network list'
 
     alias dc='docker-compose'
+    alias | grep docker
 }
 
 
@@ -408,4 +424,45 @@ d42put(){
 }
 d42delete(){
     curl -s -k -u "$D42_USERNAME:$D42_PASSWORD"  -X DELETE "$D42_BASE_URL$@"
+}
+
+
+### Tableau ############################################################################################################
+
+
+tableau_get(){
+    curl -s -H "X-Tableau-Auth: $TABLEAU_TOKEN" -H "Accept: application/json" "$TABLEAU_URL$@"
+}
+
+tableau_post(){
+    curl -s -X POST -H "X-Tableau-Auth: $TABLEAU_TOKEN" -H "Accept: application/json" "$TABLEAU_URL$@"
+}
+
+tableau_site_get(){
+    tableau_get "/sites/$TABLEAU_SITE_ID$@"
+}
+
+tableau_site_post(){
+    tableau_post "/sites/$TABLEAU_SITE_ID$@"
+}
+
+tableau_signin(){
+    PAYLOAD=$(cat <<EOF
+        {
+            "credentials": {
+                "personalAccessTokenName": "$TABLEAU_PERSONAL_ACCESS_TOKEN_NAME",
+                "personalAccessTokenSecret": "$TABLEAU_PERSONAL_ACCESS_TOKEN",
+                "site": {
+                    "contentUrl": "$TABLEAU_CONTENTURL"
+                }
+            }
+        }
+EOF
+)
+
+    export TABLEAU_TOKEN=$(curl -s -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "$PAYLOAD" $TABLEAU_URL/auth/signin | jq -r ".credentials.token")
+    cenv TABLEAU_TOKEN
+
+    export TABLEAU_SITE_ID=$(tableau_get "/sites" | jq -r ".sites.site[] | select(.contentUrl == \"$TABLEAU_CONTENTURL\").id")
+    cenv TABLEAU_SITE_ID
 }

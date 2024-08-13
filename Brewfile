@@ -35,7 +35,7 @@ cask "1password-cli"
 tap  "homebrew/cask-fonts"
 cask "font-hack-nerd-font"
 
-# TODO: convert to install command(s)
+brew "hashicorp/tap/vault"
 
 # Cleaned output of `brew list --full-name -1`
 # List with libraries removed:

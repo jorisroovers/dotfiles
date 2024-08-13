@@ -171,5 +171,10 @@
         "oracledb",
         "piechart",
         "sqlalchemy"
-    ]
+    ],
+    "github.copilot.editor.enableAutoCompletions": true,
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "git.openRepositoryInParentFolders": "never"
 }

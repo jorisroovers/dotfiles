@@ -28,6 +28,10 @@
     # Don't require `--set-upsttram origin` when pushing branches
     autoSetupRemote = true
 
+[init]
+    # Set default branch to 'main' when creating a new repository
+	defaultBranch = main
+
 [interactive]
     diffFilter = delta --color-only
 
@@ -44,8 +48,7 @@
 
 [includeIf "gitdir:~/workspaces/"]
     path = ~/.gitconfig_work
-[init]
-	defaultBranch = main
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

@@ -12,3 +12,4 @@ aliases:
     # See https://github.com/cli/cli/issues/846#issuecomment-1142104190
     prl: pr list --json number,title,headRefName,author --template '{{range .}}{{tablerow (printf "#%v" .number | autocolor "green") .title (.headRefName | color "cyan") (.author.login | color "yellow") }}{{end}}'
     prc: "!gh pr checkout $(gh prl | fzf --height 10 | cut -f1 -d ' ' | sd '#' '')"
+version: "1"
