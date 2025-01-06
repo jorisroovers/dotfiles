@@ -196,7 +196,7 @@ copy-dotfiles() {
     # python
     rsync --copy-links --relative ~/./{.pdbrc,.pythonrc.py} $target
     # Misc
-    rsync --copy-links --relative ~/./{.config/gh/config.yml,.ssh/assh.yml,.hammerspoon/cheatsheets.lua} $target
+    rsync --copy-links --relative ~/./{.config/gh/config.yml,.config/ghostty/config,.ssh/assh.yml,.hammerspoon/cheatsheets.lua} $target
     # vscode
     rsync --copy-links --relative ~/Library/Application\ Support/Code\ -\ Insiders/User/{settings,keybindings}.json $target/vscode
 }
