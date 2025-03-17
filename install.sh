@@ -26,5 +26,6 @@ ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 mkdir -p ~/.ssh
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
-mkdir -p ~/.config/gh # Create ~/.config/gh dir if it doesn't already exist
+mkdir -p ~/.config/{gh,ghostty}
 ln -fs $PWD/.config/gh/config.yml ~/.config/gh/config.yml
+ln -fs $PWD/.config/ghostty/config ~/.config/ghostty/config

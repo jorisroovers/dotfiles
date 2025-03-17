@@ -23,7 +23,7 @@ fi
 ### ITERM2 #############################################################################################################
 # https://iterm2.com/
 # Activate shell integration. Install via "iTerm2>Install Shell Integration" menu item.
-[ -f  ~/.iterm2_shell_integration.$SHELL_NAME ] && source ~/.iterm2_shell_integration.$SHELL_NAME
+# [ -f  ~/.iterm2_shell_integration.$SHELL_NAME ] && source ~/.iterm2_shell_integration.$SHELL_NAME
 
 ### BREW ###############################################################################################################
 

@@ -1,3 +1,6 @@
+copy-on-select = true
+
+# KEYBINDS #####################################################################
 # Split panes
 keybind = cmd+t=new_split:right
 keybind = cmd+shift+t=new_split:down

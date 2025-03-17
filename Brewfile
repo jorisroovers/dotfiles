@@ -10,7 +10,6 @@ brew 'lsd'     # ls
 brew 'ripgrep' # grep
 brew 'sd'      # sed
 brew 'dust'    # du
-brew 'dog'     # dig
 brew 'assh'    # ssh
 
 # Other essentials
@@ -27,8 +26,7 @@ brew 'vim'
 brew 'helix'
 brew 'watch'
 brew 'wget'
-
-brew 'jdxcode/tap/rtx'
+brew 'mise'
 
 cask "1password-cli"
 
