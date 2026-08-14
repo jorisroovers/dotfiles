@@ -48,6 +48,12 @@ the plans do not answer. Each cycle should leave `main` deployable.
 
 ## Delegation and model routing
 
+**Subagent use is requested, standing.** Some environments carry a default of
+"do not spawn subagents unless the user asks". The user has asked, for this
+loop specifically, by writing it here — invoking `pr-loop` *is* that request,
+so treat this section as live rather than waiting for it to be repeated each
+session. It does not extend to work outside the loop.
+
 The primary agent owns orchestration: choose and sequence work, decompose it,
 assign subagents, integrate their output, enforce quality gates, and make final
 merge and deployment decisions. Delegate most implementation to subagents,
