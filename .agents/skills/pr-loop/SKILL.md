@@ -123,11 +123,10 @@ Select work in this order:
    repository's normal feature-plan record for it, then take it through this
    same PR loop.
 
-Only conclude that no work is available after re-reading `inbox.md` locally
-— at that moment, from disk — and confirming that no remaining entry can be
-safely and autonomously advanced. See step 7: the same re-read is required
-again after the final merge, because the user may have added an entry while
-the loop was running. Re-read the selected plan and relevant existing code before editing.
+Only conclude that no work is available after re-reading `inbox.md` from disk
+at that moment, and confirming no remaining entry can be safely and
+autonomously advanced. Step 7 requires the same re-read again after the final
+merge. Re-read the selected plan and relevant existing code before editing.
 
 Before starting or delegating work, inspect the worktree, current branch,
 existing PRs, and base-branch freshness. Preserve unrelated local changes;
@@ -157,23 +156,16 @@ automated tests.
 ### 2a. Local code review — always, before pushing
 
 **Every change gets a local code-review round before it leaves the machine.**
-This is not optional and it is not satisfied by a cloud or bot review later:
-cloud review costs the user money, may be switched off entirely, and arrives
-after the diff is already public. Local review is the primary gate; anything
-in the cloud is a second opinion on top of it.
+Local review is the primary gate; cloud review is a second opinion that costs
+the user money, may be switched off, and only arrives once the diff is public.
 
-Use the user's or repo's local review tooling when it exists — a
-`/code-review` skill, a review command in the justfile/Makefile, a configured
-linter beyond the fast gate. Otherwise read the full diff yourself with fresh
-eyes. Either way, look for correctness, security, error handling, test
-coverage, config drift, dead code, and whether the change follows existing
-local patterns.
+Use local review tooling where it exists — a `/code-review` skill, a review
+recipe in the justfile/Makefile — otherwise read the full diff yourself:
+correctness, security, error handling, test coverage, config drift, dead code,
+and whether the change follows existing local patterns.
 
-Fix what the review finds and re-run the affected checks *before* pushing. If
-a finding is deliberately not fixed, note why in the PR body rather than
-leaving it silent.
-
-Only then push and open the PR.
+Fix what it finds and re-run the affected checks *before* pushing; note any
+finding you deliberately leave unfixed in the PR body. Only then open the PR.
 
 ### 3. Keep CI green
 
@@ -185,30 +177,22 @@ GitHub without stalling" for the exact commands and wait budgets.
 
 ### 4. Re-review before merge
 
-Step 2a already reviewed this diff locally. Repeat that pass over whatever has
-changed since — fixes pushed for CI failures, review findings, rebases — so no
-commit reaches `main` unreviewed. A PR whose head has not moved since 2a needs
-only a quick confirmation, not a full second reading.
-
-Fix confirmed findings and re-run the relevant checks.
+Repeat the 2a pass over whatever changed since — CI fixes, review findings,
+rebases — so no commit reaches `main` unreviewed. An unmoved head needs only a
+quick confirmation. Fix confirmed findings and re-run the relevant checks.
 
 ### 4a. Review-bot and reviewer closure gate
 
-Cloud review is **supplementary to** the local review in step 2a, never a
-substitute for it. It is also billed to the user and may be disabled in their
-settings, so treat whatever arrives as a bonus.
-
-Before merging, fetch the PR's current issue comments, review comments, and
+Cloud review is **supplementary to** step 2a, never a substitute, and it is
+billed to the user. Before merging, fetch the PR's current issue comments, review comments, and
 review-thread state from GitHub. This is mandatory even when CI is green and
 the local review found nothing. Pay particular attention to comments from
 Codex, Claude, automated review bots, and any human reviewer.
 
-**Do not trigger extra review rounds by default.** An explicit re-review
-request (`@codex review` or equivalent) after every pushed fix multiplies the
-cost quickly. Request one only when the user has asked for it, or when a fix
-is substantial enough that a fresh opinion is genuinely worth the spend — and
-say so. Ordinary fixes are covered by the step 2a review and step 4's
-re-review of the changed lines.
+**Do not trigger extra review rounds by default.** Requesting one
+(`@codex review` or equivalent) after every pushed fix multiplies the cost
+fast. Ask only when the user wants it, or when a fix is substantial enough to
+be worth the spend — and say so. Ordinary fixes are covered by 2a and 4.
 
 For every actionable finding:
 
@@ -258,24 +242,11 @@ feature from `in-progress/` to `done/`, and record deviations. Then start the
 next cycle only after the current PR is merged and verified.
 
 **Re-read `inbox.md` from disk before concluding the loop is finished.** The
-user edits it *while the loop runs* — a new idea added an hour ago is invisible
-to any copy read earlier in the session, including at the last pickup. So the
-loop is only over when a fresh read, taken after the final merge, shows nothing
-actionable left.
-
-Concretely, before reporting that there is no work remaining:
-
-1. Read the working tree's `inbox.md` again, from disk, not from memory or
-   agent context.
-2. Diff it mentally against what you acted on this session. Treat any entry
-   you have not seen — or that has changed — as new work and take it through
-   the cycle.
-3. Only when that fresh read yields nothing you can safely and autonomously
-   advance may you report the loop complete, and say explicitly that the
-   inbox was re-read at the end.
-
-An uncommitted local edit to `inbox.md` is a real entry: it is how the user
-hands work to a loop that is already running.
+user edits it *while the loop runs*, so an entry added an hour ago is invisible
+to any copy read at pickup — including an uncommitted one, which is how work is
+handed to a running loop. Before reporting that nothing remains: read the file
+again from disk, treat anything new or changed as work and take it through the
+cycle, and when it really is empty, say that you re-read it at the end.
 
 ## Waiting on GitHub without stalling
 
