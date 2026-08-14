@@ -190,40 +190,27 @@ quick confirmation. Fix confirmed findings and re-run the relevant checks.
 ### 4a. Review-bot and reviewer closure gate
 
 Cloud review is **supplementary to** step 2a, never a substitute, and it is
-billed to the user. Before merging, fetch the PR's current issue comments, review comments, and
-review-thread state from GitHub. This is mandatory even when CI is green and
-the local review found nothing. Pay particular attention to comments from
-Codex, Claude, automated review bots, and any human reviewer.
+billed to the user. Before merging, fetch the PR's current issue comments,
+review comments, and review-thread state. Do this even when CI is green and
+the local review found nothing.
+
+For every actionable finding: inspect the *current* code, not the comment's
+original diff location; fix it or add a focused regression test; run the
+required checks and push. Reply with the fix and commit, and resolve the
+thread only once the fix is verified. Re-check comments after that push — a
+finding posted against the new head is still a required result.
+
+Do not merge while actionable findings remain, even on an approved PR. If one
+does not apply, say why in a reply, with evidence, before merging.
 
 **Do not trigger extra review rounds by default.** Requesting one
 (`@codex review` or equivalent) after every pushed fix multiplies the cost
 fast. Ask only when the user wants it, or when a fix is substantial enough to
-be worth the spend — and say so. Ordinary fixes are covered by 2a and 4.
+be worth the spend — and say so.
 
-For every actionable finding:
-
-1. Inspect the current code, not only the comment's original diff location.
-2. Fix the issue or add a focused regression test when appropriate.
-3. Run the repository-required checks, commit, and push the fix.
-4. Wait for the new commit to receive CI and review-bot results, then inspect
-   the comments again. Do not merge based on the original review pass. Do this
-   without blocking the shell — see "Waiting on GitHub without stalling".
-5. Reply with the fix and commit when the platform supports replies, and
-   resolve the thread only after the fix is present and verified.
-
-Do not merge while actionable Codex or other review findings remain
-unaddressed, even if the PR is marked approved or the review is posted as a
-single summary comment. If a finding is not applicable, record the concrete
-reason in a PR reply before merging. A review comment posted after the latest
-commit is still a required review result, not an informational afterthought.
-Record the final review status in the loop's handoff before proceeding.
-
-This gate requires you to *look*, not to be reviewed. A PR that never receives
-an automated review still passes it once you have checked all three signal
-channels — reviews, comments, and reactions — and the grace window has expired.
-Record "no automated review was produced" and merge on your own self-review.
-Never treat a missing review as a reason to wait indefinitely; see "Waiting on
-GitHub without stalling".
+This gate requires you to *look*, not to be reviewed. Having checked reviews,
+comments and reactions, a PR with none of them passes it: record "no automated
+review was produced" and merge on the local review.
 
 ### 5. Merge and deploy
 
@@ -256,42 +243,24 @@ cycle, and when it really is empty, say that you re-read it at the end.
 
 ## Waiting on GitHub without stalling
 
-The `github` skill owns the mechanics: the `gh` commands for CI checks, the
-single GraphQL query that answers "did the bot review the current head and is
-anything unresolved", the reactions endpoint that answers "is a review even
-coming", the bounded-poll template, and the predicates that silently never
-match. Use it whenever this loop needs to read PR state; do not re-derive those
-commands here.
+The `github` skill owns the mechanics — the `gh` commands for checks, the query
+for "has the bot reviewed this head and is anything unresolved", the reactions
+endpoint, and the bounded-poll template. Use it; do not re-derive them here.
 
-The loop-level policy on top of it:
+Loop-level policy:
 
-- **CI is a fast wait (~3 min).** Blocking on it once is fine, and it is the
-  authoritative full gate before merge.
-- **The review bot is a slow wait (8–15 min).** Never block on it. Codex
-  reviews on PR open, on "ready for review", and on a `@codex review` comment.
-  The first two are free to the loop; the third is a deliberate spend, so see
-  step 4a before asking for one. When a review is in flight, spend the time on
-  useful work — the staged successor PR, plan updates — and come back with one
-  cheap status query.
-- **The bot may be turned off.** If reviews stop arriving across several PRs,
-  do not keep requesting them; say so once and proceed on the local review,
-  which was always the primary gate.
-- **Check reactions early**, right after opening the PR or requesting a
-  re-review, not only at the merge gate. A completed clean review can leave a
-  👍 reaction and nothing else, which is indistinguishable from "no review
-  happened" unless you look. This has burned the loop before.
-- **Apply a grace window, not an open wait.** If there is no reaction and no
-  result ~10 minutes after opening the PR or requesting a re-review, conclude
-  no review is coming, record "no automated review was produced" in the
-  handoff, and proceed on your own self-review. Re-requesting once is
-  reasonable; a second re-request that also produces nothing is confirmation,
-  not a reason to keep waiting.
-- **An unreviewed PR is not a blocked PR.** The closure gate in step 4a
-  requires that you *check* all three signal channels and address any findings
-  that exist — never that findings must exist before you may merge.
-- **Zero results is not automatically "wait".** It may mean the bot is still
-  working, that it finished clean without commenting, or that no review is
-  coming at all. Only the reactions query distinguishes them.
+- **CI is a fast wait (~3 min)** and is the authoritative full gate before
+  merge. Blocking on it once is fine.
+- **Never block on a review bot (8–15 min when it runs at all).** Spend the
+  time on the staged successor or plan updates, then one cheap status query.
+- **Check reactions, not just comments.** A clean review can leave only a 👍,
+  which is otherwise indistinguishable from no review at all.
+- **Grace window, not an open wait.** No reaction and no result ~10 minutes
+  after opening the PR means none is coming: record "no automated review was
+  produced" and merge on the step 2a/4 local review. Zero results never means
+  "keep waiting indefinitely" — an unreviewed PR is not a blocked PR.
+- **The bot may be disabled.** If reviews stop arriving across several PRs, say
+  so once and stop requesting them.
 
 ## Lightweight items: the fast path
 
