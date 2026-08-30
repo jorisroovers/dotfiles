@@ -99,6 +99,24 @@ define(){
     declare -f $1 | bat --style numbers,grid --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
 }
 
+# Shows definition of all functions that match the passed string (case insensitive). TODO: support aliases as well
+define_all() {
+    local function_names=""
+
+    if [ -n "$BASH_VERSION" ]; then
+        function_names=$(declare -F | awk '{print $3}')
+    elif  [ -n "$ZSH_VERSION" ]; then
+        function_names=$(print -l ${(k)functions})
+    fi
+
+    matches=$(echo $function_names | grep -i $1)
+
+    # ${=var} splits the string on whitespace into an array. Only required for zhs, in bash this is a noop and works as expected.
+    for match in ${=matches}; do
+        define $match
+    done
+}
+
 # default: returns a default value if STDIN is empty, otherwise return STDIN
 default() {
     grep . || echo $1
