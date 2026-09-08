@@ -1,0 +1,4 @@
+interface:
+  display_name: "Notion TODO Worker"
+  short_description: "Execute one AI-assigned Notion ticket"
+  default_prompt: "Pick up one AI-assigned ticket from this repository's Notion TODO board, execute it, write the result to the ticket, and move it to human review when ready."
