@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Compact interface to the Casa TODO Notion data source. Authentication is
+# delegated to the official `ntn` CLI (macOS Keychain / `ntn login`).
+set -euo pipefail
+
+fail() { printf 'casa-todo: %s\n' "$*" >&2; exit 1; }
+
+find_config() {
+  local directory="${CASA_TODO_ROOT:-$PWD}"
+  while [[ "$directory" != "/" ]]; do
+    if [[ -f "$directory/.notion-todo.json" ]]; then
+      printf '%s\n' "$directory/.notion-todo.json"
+      return
+    fi
+    directory="$(dirname "$directory")"
+  done
+  fail 'could not find .notion-todo.json; run this from the repository or set CASA_TODO_ROOT'
+}
+
+command -v ntn >/dev/null || fail 'ntn is not installed; install the official Notion CLI first'
+command -v jq >/dev/null || fail 'jq is required'
+
+config="$(find_config)"
+data_source="$(jq -er '.dashboard.data_source_id' "$config")"
+assigned_property="$(jq -er '.workflow.assignment_property' "$config")"
+assigned_value="$(jq -er '.workflow.assignment_value' "$config")"
+status_property="$(jq -er '.workflow.status_property' "$config")"
+action_property="$(jq -er '.workflow.action_property // "Action"' "$config")"
+in_progress="$(jq -er '.workflow.in_progress_status' "$config")"
+
+filter_for_status() {
+  jq -cn \
+    --arg assignment_property "$assigned_property" \
+    --arg assignment_value "$assigned_value" \
+    --arg status_property "$status_property" \
+    --arg status "$1" \
+    '{and:[{property:$assignment_property,select:{equals:$assignment_value}},{property:$status_property,status:{equals:$status}}]}'
+}
+
+compact_rows() {
+  jq -r --arg status_property "$status_property" --arg assigned_property "$assigned_property" --arg action_property "$action_property" '
+    .results[]? |
+    . as $page |
+    ([.properties | to_entries[] | select(.value.type == "title") | .value.title | map(.plain_text) | join("")] | first) as $title |
+    [$page.id, $title, ($page.properties[$action_property].select.name // ""), ($page.properties[$status_property].status.name // ""), ($page.properties[$assigned_property].select.name // ""), $page.url] | @tsv
+  '
+}
+
+query_status() {
+  local status="$1" limit="$2"
+  ntn datasources query "$data_source" --limit "$limit" --filter "$(filter_for_status "$status")" --json
+}
+
+usage() {
+  cat <<'EOF'
+Usage: casa-todo <command> [args]
+
+  ready                 List AI-assigned Next and Backlog tasks (compact TSV)
+  next                  Show the next task (id, name, action, status, owner, URL)
+  next-next             Show the next AI-assigned task in Next only
+  show <page-id>        Print a task's Markdown content
+  claim <page-id>       Recheck then change an AI ready task to In progress
+EOF
+}
+
+case "${1:-}" in
+  ready)
+    query_status Next 100 | compact_rows
+    query_status Backlog 100 | compact_rows
+    ;;
+  next)
+    result="$(query_status Next 1)"
+    if [[ "$(jq '.results | length' <<<"$result")" == "0" ]]; then
+      result="$(query_status Backlog 1)"
+    fi
+    if [[ "$(jq '.results | length' <<<"$result")" == "0" ]]; then
+      fail 'no AI-assigned ready tasks'
+    fi
+    compact_rows <<<"$result"
+    ;;
+  next-next)
+    result="$(query_status Next 1)"
+    if [[ "$(jq '.results | length' <<<"$result")" == "0" ]]; then
+      fail 'no AI-assigned Next tasks'
+    fi
+    compact_rows <<<"$result"
+    ;;
+  show)
+    [[ -n "${2:-}" ]] || fail 'show requires a page ID'
+    ntn pages get "$2"
+    ;;
+  claim)
+    page_id="${2:-}"
+    [[ -n "$page_id" ]] || fail 'claim requires a page ID'
+    page="$(ntn api "v1/pages/$page_id")"
+    assignment="$(jq -r --arg property "$assigned_property" '.properties[$property].select.name // empty' <<<"$page")"
+    status="$(jq -r --arg property "$status_property" '.properties[$property].status.name // empty' <<<"$page")"
+    [[ "$assignment" == "$assigned_value" ]] || fail "task is assigned to ${assignment:-nobody}, not $assigned_value"
+    [[ "$status" == "Next" || "$status" == "Backlog" ]] || fail "task is ${status:-without a status}, not ready"
+    body="$(jq -cn --arg property "$status_property" --arg status "$in_progress" '{properties:{($property):{status:{name:$status}}}}')"
+    ntn api "v1/pages/$page_id" -X PATCH --data "$body" | jq -r --arg property "$status_property" '[.id, (.properties[$property].status.name // ""), .url] | @tsv'
+    ;;
+  -h|--help|help|'') usage ;;
+  *) fail "unknown command: $1" ;;
+esac

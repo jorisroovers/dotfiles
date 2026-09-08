@@ -1,0 +1,4 @@
+interface:
+  display_name: "Notion Next Loop"
+  short_description: "Process AI-assigned Notion Next tickets"
+  default_prompt: "Work through the AI-assigned tickets in this repository's Notion Next column, handing each completed ticket to human review."
