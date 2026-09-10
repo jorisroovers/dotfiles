@@ -1,0 +1,180 @@
+#!/usr/bin/env bash
+# Compact interface to a repository-configured Notion task data source.
+# Authentication is delegated to the official `ntn` CLI.
+set -euo pipefail
+
+fail() { printf 'notion-todo: %s\n' "$*" >&2; exit 1; }
+
+find_config() {
+  local directory="${NOTION_TODO_ROOT:-$PWD}"
+  while [[ "$directory" != "/" ]]; do
+    if [[ -f "$directory/.notion-todo.json" ]]; then
+      printf '%s\n' "$directory/.notion-todo.json"
+      return
+    fi
+    directory="$(dirname "$directory")"
+  done
+  fail 'could not find .notion-todo.json; run this from the repository or set NOTION_TODO_ROOT'
+}
+
+command -v ntn >/dev/null || fail 'ntn is not installed; install the official Notion CLI first'
+command -v jq >/dev/null || fail 'jq is required'
+
+config="$(find_config)"
+data_source="$(jq -er '.dashboard.data_source_id' "$config")"
+assigned_property="$(jq -er '.workflow.assignment_property' "$config")"
+assignment_type="$(jq -r '.workflow.assignment_type // (if .workflow.assignment_id then "people" else "select" end)' "$config")"
+assignment_id="$(jq -r '.workflow.assignment_id // empty' "$config")"
+assigned_value="$(jq -r '.workflow.assignment_value // empty' "$config")"
+status_property="$(jq -er '.workflow.status_property' "$config")"
+action_property="$(jq -r '.workflow.action_property // empty' "$config")"
+default_action="$(jq -r '.workflow.default_action // "Investigate"' "$config")"
+loop_status="$(jq -r '.workflow.loop_status // "Next"' "$config")"
+in_progress="$(jq -er '.workflow.in_progress_status' "$config")"
+ready_statuses="$(jq -ce '.workflow.ready_statuses // [.workflow.loop_status // "Next"] | if type == "array" and length > 0 then . else error("workflow.ready_statuses must be a non-empty array") end' "$config")"
+
+case "$assignment_type" in
+  people)
+    [[ -n "$assignment_id" || -n "$assigned_value" ]] || fail 'workflow.assignment_id or workflow.assignment_value is required when workflow.assignment_type is people'
+    ;;
+  select) ;;
+  *) fail "unsupported workflow.assignment_type: $assignment_type (expected select or people)" ;;
+esac
+
+assignment_filter() {
+  if [[ "$assignment_type" == "people" ]]; then
+    if [[ -n "$assignment_id" ]]; then
+      jq -cn --arg property "$assigned_property" --arg id "$assignment_id" \
+        '{property:$property,people:{contains:$id}}'
+    else
+      # The Notion API filters people by ID, not by display name. Name-only
+      # configs query the status and filter the returned pages below.
+      jq -cn 'null'
+    fi
+  else
+    jq -cn --arg property "$assigned_property" --arg value "$assigned_value" \
+      '{property:$property,select:{equals:$value}}'
+  fi
+}
+
+filter_for_status() {
+  local status="$1"
+  if [[ "$assignment_type" == "people" && -z "$assignment_id" ]]; then
+    jq -cn --arg status_property "$status_property" --arg status "$status" \
+      '{and:[{property:$status_property,status:{equals:$status}}]}'
+  else
+    jq -cn --argjson assignment "$(assignment_filter)" \
+      --arg status_property "$status_property" --arg status "$status" \
+      '{and:[$assignment,{property:$status_property,status:{equals:$status}}]}'
+  fi
+}
+
+compact_rows() {
+  jq -r --arg status_property "$status_property" \
+    --arg assigned_property "$assigned_property" \
+    --arg assignment_type "$assignment_type" \
+    --arg assignment_id "$assignment_id" \
+    --arg assigned_value "$assigned_value" \
+    --arg action_property "$action_property" \
+    --arg default_action "$default_action" '
+    def field_name:
+      (.select.name // .status.name // ([.rich_text[]?.plain_text] | join("")) // "");
+    .results[]? |
+    . as $page |
+    select(
+      if $assignment_type == "people" then
+        (($page.properties[$assigned_property].people // []) | any(.[]; (.id == $assignment_id) or ($assigned_value != "" and .name == $assigned_value)))
+      else
+        (($page.properties[$assigned_property] | field_name) == $assigned_value)
+      end
+    ) |
+    ([.properties | to_entries[] | select(.value.type == "title") | .value.title | map(.plain_text) | join("")] | first) as $title |
+    (if $action_property != "" then ($page.properties[$action_property] | field_name) else "" end) as $action_value |
+    ($page.properties[$assigned_property] // {}) as $assigned |
+    (if ($assigned.people // []) | length > 0 then ($assigned.people | map(.name // .id) | join(", ")) else ($assigned | field_name) end) as $owner |
+    [$page.id, $title, (if $action_value == "" then $default_action else $action_value end), ($page.properties[$status_property] | field_name), $owner, $page.url] | @tsv
+  '
+}
+
+query_status() {
+  local status="$1" limit="$2"
+  if [[ "$assignment_type" == "people" && -z "$assignment_id" ]]; then
+    limit=100
+  fi
+  ntn datasources query "$data_source" --limit "$limit" --filter "$(filter_for_status "$status")" --json
+}
+
+statuses_lines() { jq -r '.[]' <<<"$ready_statuses"; }
+
+first_ready_result() {
+  local status result rows
+  while IFS= read -r status; do
+    result="$(query_status "$status" 1)"
+    rows="$(compact_rows <<<"$result")"
+    if [[ -n "$rows" ]]; then
+      sed -n '1p' <<<"$rows"
+      return
+    fi
+  done < <(statuses_lines)
+  fail 'no assigned ready tasks'
+}
+
+usage() {
+  cat <<'EOF'
+Usage: notion-todo <command> [args]
+
+  ready                 List assigned tasks in all configured ready statuses (compact TSV)
+  next                  Show the first task in configured ready-status order
+  next-loop             Show the next assigned task in loop_status only
+  next-next             Compatibility alias for next-loop
+  show <page-id>        Print a task's Markdown content
+  claim <page-id>       Recheck then change an assigned ready task to in-progress
+EOF
+}
+
+case "${1:-}" in
+  ready)
+    while IFS= read -r status; do
+      query_status "$status" 100 | compact_rows
+    done < <(statuses_lines)
+    ;;
+  next)
+    first_ready_result
+    ;;
+  next-loop|next-next)
+    result="$(query_status "$loop_status" 1)"
+    rows="$(compact_rows <<<"$result")"
+    if [[ -z "$rows" ]]; then
+      fail "no assigned tasks in $loop_status"
+    fi
+    sed -n '1p' <<<"$rows"
+    ;;
+  show)
+    [[ -n "${2:-}" ]] || fail 'show requires a page ID'
+    ntn pages get "$2"
+    ;;
+  claim)
+    page_id="${2:-}"
+    [[ -n "$page_id" ]] || fail 'claim requires a page ID'
+    page="$(ntn api "v1/pages/$page_id")"
+    assignment_matches="$(jq -r --arg property "$assigned_property" --arg type "$assignment_type" \
+      --arg id "$assignment_id" --arg value "$assigned_value" '
+      .properties[$property] as $field |
+      if $type == "people" then
+        (($field.people // []) | any(.[]; (.id == $id) or ($value != "" and .name == $value)))
+      else
+        (($field.select.name // "") == $value)
+      end' <<<"$page")"
+    [[ "$assignment_matches" == "true" ]] || fail 'task is not assigned to the configured worker'
+    status="$(jq -r --arg property "$status_property" '.properties[$property].status.name // .properties[$property].select.name // empty' <<<"$page")"
+    ready_match=false
+    while IFS= read -r ready; do
+      if [[ "$status" == "$ready" ]]; then ready_match=true; break; fi
+    done < <(statuses_lines)
+    [[ "$ready_match" == true ]] || fail "task is ${status:-without a status}, not ready"
+    body="$(jq -cn --arg property "$status_property" --arg status "$in_progress" '{properties:{($property):{status:{name:$status}}}}')"
+    ntn api "v1/pages/$page_id" -X PATCH --data "$body" | jq -r --arg property "$status_property" '[.id, (.properties[$property].status.name // .properties[$property].select.name // ""), .url] | @tsv'
+    ;;
+  -h|--help|help|'') usage ;;
+  *) fail "unknown command: $1" ;;
+esac
