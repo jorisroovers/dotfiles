@@ -1,3 +1,129 @@
+### HOMEBREW  ##########################################################################################################
+
+# Show outdated packages grouped by major/minor/patch with changelogs from GitHub releases.
+# Changelogs shown for major+minor (and patch with -v). Pipe output through less.
+brew-changelog(){
+    local verbose=0
+    [[ "$1" == "-v" ]] && verbose=1
+
+    local brew_json
+    brew_json=$(brew outdated --json)
+
+    BREW_JSON="$brew_json" BREW_VERBOSE="$verbose" python3 <<'PYEOF' | less -RF
+import json, os, subprocess, urllib.request, re
+
+RESET  = '\033[0m'
+BOLD   = '\033[1m'
+DIM    = '\033[2m'
+RED    = '\033[91m'
+YELLOW = '\033[93m'
+CYAN   = '\033[96m'
+BLUE   = '\033[94m'
+WHITE  = '\033[97m'
+
+verbose = os.environ['BREW_VERBOSE'] == '1'
+data = json.loads(os.environ['BREW_JSON'])
+
+major, minor, patch = [], [], []
+for pkg in data['formulae']:
+    name = pkg['name']
+    current = pkg['installed_versions'][0] if pkg['installed_versions'] else '0'
+    latest = pkg['current_version']
+    cur = current.split('.')
+    new = latest.split('.')
+    entry = (name, current, latest)
+    if cur[:1] != new[:1]:
+        major.append(entry)
+    elif cur[1:2] != new[1:2]:
+        minor.append(entry)
+    else:
+        patch.append(entry)
+
+need_info = [n for n, _, _ in major + minor] + ([n for n, _, _ in patch] if verbose else [])
+pkg_info = {}
+if need_info:
+    result = subprocess.run(['brew', 'info', '--json=v2'] + need_info, capture_output=True, text=True)
+    if result.returncode == 0:
+        for f in json.loads(result.stdout).get('formulae', []):
+            info = {
+                'homepage': f.get('homepage', ''),
+                'source_url': (f.get('urls') or {}).get('stable', {}).get('url', ''),
+            }
+            pkg_info[f['name']] = info
+        # Also index by tap-qualified names (e.g. 'hashicorp/tap/vault' -> 'vault')
+        for orig in need_info:
+            short = orig.split('/')[-1]
+            if short in pkg_info and orig not in pkg_info:
+                pkg_info[orig] = pkg_info[short]
+
+def parse_ver(v):
+    v = re.sub(r'^[^0-9]*', '', v)
+    parts = re.split(r'[.\-_]', v)
+    result = []
+    for p in parts:
+        try:
+            result.append((0, int(p)))
+        except ValueError:
+            result.append((1, p))
+    return result
+
+def ver_in_range(tag, cur, lat):
+    try:
+        return parse_ver(cur) < parse_ver(tag) <= parse_ver(lat)
+    except Exception:
+        return False
+
+def github_owner_repo(url):
+    # Match github.com/owner/repo anywhere in the URL (handles tarball/archive paths too)
+    m = re.search(r'github\.com/([^/]+)/([^/]+?)(?:\.git|/|$)', url or '')
+    return (m.group(1), m.group(2)) if m else None
+
+def fetch_releases(info, cur, lat):
+    for url in [info.get('source_url', ''), info.get('homepage', '')]:
+        parsed = github_owner_repo(url)
+        if parsed:
+            owner, repo = parsed
+            api_url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=50"
+            try:
+                req = urllib.request.Request(api_url, headers={'User-Agent': 'brew-changelog'})
+                with urllib.request.urlopen(req, timeout=8) as r:
+                    releases = json.loads(r.read())
+                relevant = [r for r in releases if ver_in_range(r['tag_name'], cur, lat)]
+                return relevant, f"https://github.com/{owner}/{repo}/releases"
+            except Exception:
+                pass
+    return None, info.get('homepage', '')
+
+def print_group(color, title, entries, show_changelog):
+    if not entries:
+        return
+    print(f"\n{BOLD}{color}{'═' * 80}{RESET}")
+    print(f"{BOLD}{color}  {title} ({len(entries)}){RESET}")
+    print(f"{BOLD}{color}{'═' * 80}{RESET}")
+    for name, current, latest in entries:
+        print(f"\n{BOLD}{WHITE}  {name}{RESET}  {DIM}{current} → {latest}{RESET}")
+        if not show_changelog:
+            continue
+        info = pkg_info.get(name, {})
+        releases, fallback_url = fetch_releases(info, current, latest)
+        if releases:
+            for rel in reversed(releases):
+                print(f"\n  {BOLD}{BLUE}── {rel['tag_name']} ──{RESET}")
+                body = (rel.get('body') or '').strip()
+                if body:
+                    for line in body.splitlines():
+                        print(f"  {line}")
+                else:
+                    print(f"  {DIM}(no release notes){RESET}")
+        elif fallback_url:
+            print(f"  {DIM}Changelog: {fallback_url}{RESET}")
+
+print_group(RED,    "Major Updates", major, show_changelog=True)
+print_group(YELLOW, "Minor Updates", minor, show_changelog=True)
+print_group(CYAN,   "Patch Updates", patch, show_changelog=verbose)
+PYEOF
+}
+
 ### PROGRAM OVERRIDES  #################################################################################################
 alias cat='bat'                 # https://github.com/sharkdp/bat
 #alias find='fd'                # https://github.com/sharkdp/fd
@@ -97,6 +223,24 @@ define(){
     # type $1
     alias $1 | bat -p --language sh # this is a no-op on functions, so we can safely run it on both aliases and functions
     declare -f $1 | bat --style numbers,grid --language sh || return 0 # declare only on functions, don't error out if $1 is an alias
+}
+
+# Shows definitions of functions whose names match the supplied text (case-insensitive).
+define_all() {
+    local function_names=""
+
+    if [ -n "$BASH_VERSION" ]; then
+        function_names=$(declare -F | awk '{print $3}')
+    elif [ -n "$ZSH_VERSION" ]; then
+        function_names=$(print -l ${(k)functions})
+    fi
+
+    local matches
+    matches=$(printf '%s\n' "$function_names" | grep -i -- "$1")
+
+    while IFS= read -r match; do
+        [ -n "$match" ] && define "$match"
+    done <<< "$matches"
 }
 
 # default: returns a default value if STDIN is empty, otherwise return STDIN

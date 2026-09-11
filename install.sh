@@ -24,6 +24,9 @@ ln -fs $PWD/.*.omp.json ~
 ln -fs $PWD/{.zshrc,.bash_profile,.env.sh} ~
 ln -fs $PWD/{.pdbrc,.pythonrc.py} ~
 ln -fs $PWD/{.gitconfig,.gitignore_global} ~
+ln -fs $PWD/.agents ~
+mkdir -p ~/.claude
+ln -sfn ~/.agents/skills ~/.claude/skills
 mkdir -p ~/.ssh
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
 mkdir -p ~/.config/{gh,ghostty}

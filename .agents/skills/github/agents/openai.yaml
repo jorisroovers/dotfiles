@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub"
+  short_description: "Read PR, CI, and review state reliably with gh"
+  default_prompt: "Use $github to check a pull request's CI, review-bot, and thread state without stalling."

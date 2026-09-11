@@ -28,6 +28,12 @@ brew 'watch'
 brew 'wget'
 brew 'mise'
 
+# Static analysis / precommit tools
+brew 'semgrep'     # static analysis / SAST
+brew 'hadolint'    # Dockerfile linter
+brew 'actionlint'  # GitHub Actions workflow linter
+brew 'shellcheck'  # shell script linter
+
 cask "1password-cli"
 
 tap  "homebrew/cask-fonts"

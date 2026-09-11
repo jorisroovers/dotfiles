@@ -189,6 +189,11 @@ quick confirmation. Fix confirmed findings and re-run the relevant checks.
 
 ### 4a. Review-bot and reviewer closure gate
 
+**Automated cloud review is currently disabled for this user's repos.** Do not
+wait for it, and do not budget a grace window for it. Still *look* once before
+merging — a human may have commented — but a clean look is the expected result,
+not a signal that something is late.
+
 Cloud review is **supplementary to** step 2a, never a substitute, and it is
 billed to the user. Before merging, fetch the PR's current issue comments,
 review comments, and review-thread state. Do this even when CI is green and
@@ -230,6 +235,16 @@ SSH/health-check/deploy-watch conventions to use.
 
 ### 7. Close the loop
 
+A merge just landed, so compact the context — but the agent cannot trigger
+`/compact` itself: it is a user-side Claude Code command, and there is no
+tool for it. Instead:
+
+- Write or refresh a durable loop-state handoff note (branch, PR numbers,
+  what merged, what is staged, what is next, and where the plans live) so
+  nothing is lost if the context gets summarized.
+- Tell the user plainly that a merge just landed and `/compact` is a good
+  moment, rather than silently assuming compaction happened.
+
 Update the roadmap or feature plan: tick completed PR items, move a completed
 feature from `in-progress/` to `done/`, and record deviations. Then start the
 next cycle only after the current PR is merged and verified.
@@ -251,16 +266,14 @@ Loop-level policy:
 
 - **CI is a fast wait (~3 min)** and is the authoritative full gate before
   merge. Blocking on it once is fine.
-- **Never block on a review bot (8–15 min when it runs at all).** Spend the
-  time on the staged successor or plan updates, then one cheap status query.
-- **Check reactions, not just comments.** A clean review can leave only a 👍,
-  which is otherwise indistinguishable from no review at all.
-- **Grace window, not an open wait.** No reaction and no result ~10 minutes
-  after opening the PR means none is coming: record "no automated review was
-  produced" and merge on the step 2a/4 local review. Zero results never means
-  "keep waiting indefinitely" — an unreviewed PR is not a blocked PR.
-- **The bot may be disabled.** If reviews stop arriving across several PRs, say
-  so once and stop requesting them.
+- **Do not wait for a review bot at all — it is disabled.** One cheap status
+  query before merging is the whole obligation; there is no grace window to
+  serve. Once CI is green and the step 2a/4 local review is done, merge.
+- **Check reactions, not just comments,** on that single query. A human review
+  can leave only a 👍, which is otherwise indistinguishable from nothing.
+- Record "no automated review was produced" and merge on the local review.
+  Zero results never means "keep waiting" — an unreviewed PR is not a blocked
+  PR.
 
 ## Lightweight items: the fast path
 
