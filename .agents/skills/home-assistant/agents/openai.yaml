@@ -1,0 +1,4 @@
+interface:
+  display_name: "Home Assistant"
+  short_description: "Operate a configured Home Assistant instance"
+  default_prompt: "Use $home-assistant to inspect or update a configured Home Assistant instance safely."

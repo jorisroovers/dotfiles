@@ -1,0 +1,4 @@
+interface:
+  display_name: "Production Server"
+  short_description: "Access and verify production services safely"
+  default_prompt: "Use $u59-production to inspect a configured production deployment safely."
