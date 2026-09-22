@@ -27,6 +27,7 @@ brew 'helix'
 brew 'watch'
 brew 'wget'
 brew 'mise'
+brew 'rtk'       # token-optimized command output for agents
 
 # Static analysis / precommit tools
 brew 'semgrep'     # static analysis / SAST

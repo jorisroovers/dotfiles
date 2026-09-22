@@ -27,6 +27,8 @@ ln -fs $PWD/{.gitconfig,.gitignore_global} ~
 ln -fs $PWD/.agents ~
 mkdir -p ~/.claude
 ln -sfn ~/.agents/skills ~/.claude/skills
+# Shared RTK instructions for Codex, Claude, Grok, and Cursor
+bash "$PWD/.agents/link-rtk.sh"
 mkdir -p ~/.ssh
 ln -fs $PWD/.ssh/assh.yml ~/.ssh
 mkdir -p ~/.config/{gh,ghostty}
