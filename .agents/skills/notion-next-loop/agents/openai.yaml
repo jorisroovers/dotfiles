@@ -1,4 +1,4 @@
 interface:
   display_name: "Notion Next Loop"
   short_description: "Process AI-assigned Notion Next tickets"
-  default_prompt: "Work through the AI-assigned tickets in this repository's Notion Next column, handing each completed ticket to human review."
+  default_prompt: "Work through the AI-assigned tickets in this repository's Notion Next column, handing each completed ticket to human review. Dispatch one ticket per child session when available. If this directory has child boards, peek them first with notion-todo peek-tree and dispatch only boards that have work."

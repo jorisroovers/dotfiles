@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""Align a Notion TODO data source with the loop status model (casa-ops)."""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+
+CANONICAL_STATUSES = [
+    ("Backlog", "blue", "To-do"),
+    ("Next", "blue", "To-do"),
+    ("In progress", "yellow", "In progress"),
+    ("Human Review", "orange", "In progress"),
+    ("Wait", "orange", "In progress"),
+    ("Done", "green", "Complete"),
+]
+
+COMPLETE_COLORS = {"Closed": "purple", "Archived": "purple"}
+
+GROUP_BY_NAME = {
+    "Backlog": "To-do",
+    "Next": "To-do",
+    "Not started": "To-do",
+    "In progress": "In progress",
+    "Human Review": "In progress",
+    "Wait": "In progress",
+    "Done": "Complete",
+    "Closed": "Complete",
+    "Archived": "Complete",
+}
+
+ASSIGNED_OPTION = {"name": "AI", "color": "pink"}
+ACTION_OPTIONS = [
+    {"name": "Investigate", "color": "red"},
+    {"name": "Implement", "color": "brown"},
+]
+PERMISSION_OPTIONS = [
+    {"name": "Default", "color": "gray"},
+    {"name": "Full", "color": "red"},
+]
+
+
+def fail(message: str) -> None:
+    print(f"notion-todo-onboard: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def ntn_api(*args: str, data: dict | None = None) -> dict:
+    cmd = ["ntn", "api", *args]
+    if data is not None:
+        cmd.extend(["--data", json.dumps(data)])
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        err = (result.stderr or result.stdout or "ntn api failed").strip()
+        fail(err)
+    return json.loads(result.stdout)
+
+
+def get_data_source(data_source_id: str) -> dict:
+    return ntn_api(f"/v1/data_sources/{data_source_id}")
+
+
+def title_of(obj: dict) -> str:
+    return "".join(part.get("plain_text", "") for part in obj.get("title") or [])
+
+
+def option_payload(existing: list[dict], wanted: list[dict]) -> list[dict]:
+    by_name = {opt["name"]: opt for opt in existing}
+    out: list[dict] = []
+    seen: set[str] = set()
+    for item in wanted:
+        name = item["name"]
+        seen.add(name)
+        payload: dict = {"name": name}
+        if name in by_name:
+            payload["id"] = by_name[name]["id"]
+        else:
+            # Notion rejects color changes on some existing status options.
+            payload["color"] = item["color"]
+        out.append(payload)
+    for opt in existing:
+        if opt["name"] in seen:
+            continue
+        out.append({"id": opt["id"], "name": opt["name"]})
+    return out
+
+
+def status_payload(status_prop: dict, complete_name: str) -> dict:
+    current = status_prop.get("status") or {}
+    options = current.get("options") or []
+    groups = current.get("groups") or []
+    wanted = [
+        {"name": name, "color": color} for name, color, _group in CANONICAL_STATUSES
+    ]
+    wanted.append({"name": complete_name, "color": COMPLETE_COLORS[complete_name]})
+    merged = option_payload(options, wanted)
+
+    # New options have no id yet; groups can only list existing ids.
+    grouped: dict[str, list[str]] = {"To-do": [], "In progress": [], "Complete": []}
+    leftover: dict[str, list[str]] = {group["name"]: [] for group in groups}
+    for opt in options:
+        name = opt["name"]
+        opt_id = opt["id"]
+        target = GROUP_BY_NAME.get(name)
+        if target:
+            grouped[target].append(opt_id)
+            continue
+        current_group = next(
+            (group["name"] for group in groups if opt_id in group.get("option_ids", [])),
+            "To-do",
+        )
+        leftover.setdefault(current_group, []).append(opt_id)
+        grouped.setdefault(current_group, [])
+    for group_name, ids in leftover.items():
+        grouped.setdefault(group_name, [])
+        for opt_id in ids:
+            if opt_id not in grouped[group_name]:
+                grouped[group_name].append(opt_id)
+
+    group_payload = []
+    for group in groups:
+        group_payload.append(
+            {
+                "id": group["id"],
+                "name": group["name"],
+                "option_ids": grouped.get(group["name"], group.get("option_ids", [])),
+            }
+        )
+    return {"status": {"options": merged, "groups": group_payload}}
+
+
+def ensure_select(prop: dict | None, wanted: list[dict]) -> dict:
+    existing = ((prop or {}).get("select") or {}).get("options") or []
+    return {"select": {"options": option_payload(existing, wanted)}}
+
+
+def build_properties(ds: dict, complete_name: str) -> dict:
+    props = ds.get("properties") or {}
+    status_prop = props.get("Status")
+    if not status_prop or status_prop.get("type") != "status":
+        fail("data source has no Status status property")
+    out = {"Status": status_payload(status_prop, complete_name)}
+    out["Assigned"] = ensure_select(props.get("Assigned"), [ASSIGNED_OPTION])
+    out["Action"] = ensure_select(props.get("Action"), ACTION_OPTIONS)
+    out["Permissions"] = ensure_select(props.get("Permissions"), PERMISSION_OPTIONS)
+    return out
+
+
+def summarize_status(ds: dict) -> str:
+    status = (ds.get("properties") or {}).get("Status", {}).get("status") or {}
+    options = status.get("options") or []
+    groups = status.get("groups") or []
+    id_to_name = {opt["id"]: opt["name"] for opt in options}
+    lines = []
+    for group in groups:
+        names = [id_to_name.get(opt_id, opt_id) for opt_id in group.get("option_ids", [])]
+        lines.append(f"{group['name']}: {', '.join(names)}")
+    colors = ", ".join(f"{opt['name']}={opt.get('color')}" for opt in options)
+    assigned = (ds.get("properties") or {}).get("Assigned", {})
+    action = (ds.get("properties") or {}).get("Action", {})
+    permissions = (ds.get("properties") or {}).get("Permissions", {})
+    assigned_opts = ((assigned.get("select") or {}).get("options") or [])
+    action_opts = ((action.get("select") or {}).get("options") or [])
+    permission_opts = ((permissions.get("select") or {}).get("options") or [])
+    lines.append(f"colors: {colors}")
+    lines.append(
+        "Assigned: " + ", ".join(f"{o['name']}={o.get('color')}" for o in assigned_opts)
+        if assigned_opts
+        else "Assigned: missing"
+    )
+    lines.append(
+        "Action: " + ", ".join(f"{o['name']}={o.get('color')}" for o in action_opts)
+        if action_opts
+        else "Action: missing"
+    )
+    lines.append(
+        "Permissions: " + ", ".join(f"{o['name']}={o.get('color')}" for o in permission_opts)
+        if permission_opts
+        else "Permissions: missing"
+    )
+    return "\n".join(lines)
+
+
+def apply_schema(data_source_id: str, complete_name: str, dry_run: bool) -> dict:
+    ds = get_data_source(data_source_id)
+    properties = build_properties(ds, complete_name)
+    if dry_run:
+        print(json.dumps({"data_source_id": data_source_id, "properties": properties}, indent=2))
+        return ds
+    ntn_api(
+        f"/v1/data_sources/{data_source_id}",
+        "-X",
+        "PATCH",
+        data={"properties": properties},
+    )
+    # New status options only get ids after create; regroup on a second pass.
+    ds = get_data_source(data_source_id)
+    properties = build_properties(ds, complete_name)
+    return ntn_api(
+        f"/v1/data_sources/{data_source_id}",
+        "-X",
+        "PATCH",
+        data={"properties": properties},
+    )
+
+
+def create_board(parent_page_id: str, title: str, complete_name: str, dry_run: bool) -> dict:
+    body = {
+        "parent": {"type": "page_id", "page_id": parent_page_id},
+        "title": [{"type": "text", "text": {"content": title}}],
+        "is_inline": True,
+        "initial_data_source": {
+            "properties": {
+                "Name": {"title": {}},
+                "Status": {"status": {}},
+                "Assigned": {"select": {"options": [ASSIGNED_OPTION]}},
+                "Action": {"select": {"options": ACTION_OPTIONS}},
+                "Permissions": {"select": {"options": PERMISSION_OPTIONS}},
+            }
+        },
+    }
+    if dry_run:
+        print(json.dumps(body, indent=2))
+        return body
+    created = ntn_api("/v1/databases", "-X", "POST", data=body)
+    sources = created.get("data_sources") or []
+    if not sources:
+        fail("created database has no data source")
+    data_source_id = sources[0]["id"]
+    apply_schema(data_source_id, complete_name, dry_run=False)
+    created["data_sources"] = ntn_api(f"/v1/databases/{created['id']}").get("data_sources")
+    return created
+
+
+def write_config(
+    path: str,
+    name: str,
+    database_id: str,
+    data_source_id: str,
+    delivery: str | None,
+    agent_provider: str | None = None,
+    agent_model: str | None = None,
+    agent_effort: str | None = None,
+) -> None:
+    config = {
+        "dashboard": {
+            "name": name,
+            "database_id": database_id,
+            "data_source_id": data_source_id,
+        },
+        "workflow": {
+            "action_property": "Action",
+            "permission_property": "Permissions",
+            "assignment_property": "Assigned",
+            "assignment_type": "select",
+            "assignment_value": "AI",
+            "status_property": "Status",
+            "ready_statuses": ["Next"],
+            "loop_status": "Next",
+            "default_action": "Investigate",
+            "in_progress_status": "In progress",
+            "review_status": "Human Review",
+        },
+    }
+    if delivery:
+        config["delivery"] = {"mode": delivery}
+    if agent_provider:
+        agent = {"provider": agent_provider}
+        if agent_model:
+            agent["model"] = agent_model
+        if agent_effort:
+            agent["effort"] = agent_effort
+        config["agent"] = agent
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(config, handle, indent=2)
+        handle.write("\n")
+    print(path)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Onboard a Notion TODO board to the AI loop schema."
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    apply_p = sub.add_parser("apply", help="Align an existing data source")
+    apply_p.add_argument("data_source_id")
+    apply_p.add_argument("--complete", choices=["Closed", "Archived"], default="Closed")
+    apply_p.add_argument("--dry-run", action="store_true")
+
+    create_p = sub.add_parser("create", help="Create a board under a parent page")
+    create_p.add_argument("--parent", required=True, help="Parent page ID")
+    create_p.add_argument("--title", required=True)
+    create_p.add_argument("--complete", choices=["Closed", "Archived"], default="Closed")
+    create_p.add_argument("--dry-run", action="store_true")
+
+    config_p = sub.add_parser("write-config", help="Write .notion-todo.json")
+    config_p.add_argument("--path", required=True)
+    config_p.add_argument("--name", required=True)
+    config_p.add_argument("--database-id", required=True)
+    config_p.add_argument("--data-source-id", required=True)
+    config_p.add_argument("--delivery", choices=["pr-loop", "direct"])
+    config_p.add_argument("--agent-provider", choices=["grok", "claude", "codex"])
+    config_p.add_argument("--agent-model")
+    config_p.add_argument("--agent-effort")
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    if args.command == "apply":
+        updated = apply_schema(args.data_source_id, args.complete, args.dry_run)
+        if not args.dry_run:
+            print(f"{title_of(updated)}\t{updated['id']}\t{updated.get('url', '')}")
+            print(summarize_status(updated))
+    elif args.command == "create":
+        created = create_board(args.parent, args.title, args.complete, args.dry_run)
+        if not args.dry_run:
+            sources = created.get("data_sources") or []
+            print(
+                f"{title_of(created)}\t{created['id']}\t{sources[0]['id']}\t{created.get('url', '')}"
+            )
+            ds = get_data_source(sources[0]["id"])
+            print(summarize_status(ds))
+    elif args.command == "write-config":
+        write_config(
+            args.path,
+            args.name,
+            args.database_id,
+            args.data_source_id,
+            args.delivery,
+            args.agent_provider,
+            args.agent_model,
+            args.agent_effort,
+        )
+
+
+if __name__ == "__main__":
+    main()

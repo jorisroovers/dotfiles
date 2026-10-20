@@ -1,6 +1,6 @@
 ---
 name: notion-todo-worker
-description: Pick up assigned work from a repository-configured Notion task database, execute one suitable ticket, append evidence and results to that ticket, and hand it to the configured review status. Use when asked to work a Notion task queue; do not use for general Notion writing or research.
+description: Pick up assigned work from a repository-configured Notion task database, execute one suitable ticket, prepend evidence and results to that ticket, and hand it to the configured review status. Use when asked to work a Notion task queue; do not use for general Notion writing or research.
 ---
 
 # Notion TODO Worker
@@ -28,9 +28,16 @@ Look from the current directory toward the repository root for `.notion-todo.jso
     "default_action": "Investigate",
     "in_progress_status": "In progress",
     "review_status": "Human Review"
+  },
+  "agent": {
+    "provider": "claude",
+    "model": "opus",
+    "effort": "medium"
   }
 }
 ```
+
+Optional `agent` pins the board's loop CLI (`provider` `grok` | `claude` | `codex`, plus that CLI's `model` and `effort`). `notion-todo agent` prints it as TSV. Ticket-level agent selection is not configured.
 
 `assignment_type` may be `select` or `people`. For a people property, prefer `assignment_id` for matching a stable user ID and use `assignment_value` only as a display-name fallback. `action_property` is optional; if it is absent or missing on a page, use `default_action` (default `Investigate`). `ready_statuses` is authoritative, while `loop_status` defaults to `Next` for loop-oriented callers. The final handoff status is always `review_status`; it may be any valid status such as `Human Review` or `Done`.
 
@@ -49,20 +56,20 @@ If no connector is available and direct Notion API access is appropriate, read t
 3. Select one ticket that is actionable with the available context and permissions. Prefer the highest-priority ready status, then the oldest suitable ticket. Fetch the full ticket and its discussions before claiming it. Skip tickets that would require inventing product choices or obtaining unavailable authority.
 4. Atomically claim the ticket as far as the available Notion interface permits: re-fetch it, confirm it remains assigned and ready, then set `in_progress_status`. If it changed, choose another ticket.
 5. Execute the ticket within the repository's instructions and the user's authorization. If `action_property` is absent or not present on the page, use `default_action` (default `Investigate`). Interpret `Investigate` as research/diagnosis and `Implement` as reviewable implementation, without inferring destructive, purchasing, messaging, product-decision, or undocumented deployment authority. Validate work in proportion to risk.
-6. Append a dated `AI work result` section to the ticket; preserve all existing content. Include the outcome, concrete changes or findings, validation evidence, links or artifact paths where useful, and any focused human checks or decisions still needed. Do not expose secrets or dump noisy logs.
+6. Prepend a dated `## AI work result — YYYY-MM-DD` section at the start of the page body with `~/.agents/skills/notion-next-loop/scripts/notion-todo result <page-id>` (insert-at-start). Do not use `ntn pages edit` (full replace) and do not use Notion comments. Preserve existing content below the new section. Include the outcome, concrete changes or findings, validation evidence, links or artifact paths where useful, and any focused human checks or decisions still needed. Keep the on-page result short; put bulk in the board `artifacts/` directory and attach it with `result <page-id> --attach <path>` (a file block, not pasted text or a toggle, so later fetches stay small). The helper adds a blank feedback slot and divider above the new section for the human's next note (`--no-placeholder` skips it). Do not expose secrets or dump noisy logs.
 7. Re-fetch the ticket to verify the result is present. When the work product is ready for a person to assess, set `review_status`. Re-query or re-fetch once more to verify the final status.
 
 ## Delivery modes
 
 For a claimed `Implement` ticket, honor the optional repository `delivery.mode`:
 
-- `pr-loop`: implement, run focused checks, review locally, open and iterate the PR through green CI, merge, watch deployment, and verify the result. A required approval, unavailable credential, or blocked deployment is a handoff to `review_status`.
+- `pr-loop`: implement, run focused checks, review locally, open and iterate the PR through green CI, merge, watch deployment, and verify the result. This mode is approval to push the branch and to open and merge the pull request this ticket opened, in Default / auto permissions. That includes `git push`, `gh pr create`, and `gh pr merge` (merge, squash, or rebase, and `--delete-branch` of the pull request head) onto the base branch. A `rtk`, `rtk proxy`, or `rtk proxy --` prefix on those commands is the same operation; run each as one simple command so the allow rule matches. `Permissions=Full` only bypasses the sandbox. It is not required to push or merge, and do not stop or ask for Full for that reason. The same Default authorization applies to Grok, Claude, and Codex workers. Grok and Claude use launcher allow rules. Codex uses the execpolicy rules in the `pr-loop` skill (`codex-publish.rules`), which the life-ops launcher installs for a Default Codex worker. A newly created app inherits this from these shared skills and that launcher. Do not force-push, delete the base branch, skip failing required checks, or merge a pull request this ticket did not open. A required approval, unavailable credential, or blocked deployment is a handoff to `review_status`.
 - `direct`: use only when repository-local instructions define direct deployment, including its validation, reload/deploy, and live-verification steps. Do not create a PR merely to imitate this mode.
 - absent: produce a reviewable implementation or investigation; do not infer deployment authority.
 
 An unknown mode is a handoff to `review_status`. Record the mode and delivery/verification evidence in the ticket result when a delivery mode is used.
 
-If execution cannot produce a reviewable result, append a concise blocker/update and leave the ticket in the configured in-progress or wait state rather than falsely marking it complete.
+If execution cannot produce a reviewable result, prepend a concise blocker/update and leave the ticket in the configured in-progress or wait state rather than falsely marking it complete.
 
 ## Handoff
 

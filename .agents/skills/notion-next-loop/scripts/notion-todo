@@ -5,6 +5,9 @@ set -euo pipefail
 
 fail() { printf 'notion-todo: %s\n' "$*" >&2; exit 1; }
 
+script_dir="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+script_path="$script_dir/$(basename -- "$0")"
+
 find_config() {
   local directory="${NOTION_TODO_ROOT:-$PWD}"
   while [[ "$directory" != "/" ]]; do
@@ -20,26 +23,32 @@ find_config() {
 command -v ntn >/dev/null || fail 'ntn is not installed; install the official Notion CLI first'
 command -v jq >/dev/null || fail 'jq is required'
 
-config="$(find_config)"
-data_source="$(jq -er '.dashboard.data_source_id' "$config")"
-assigned_property="$(jq -er '.workflow.assignment_property' "$config")"
-assignment_type="$(jq -r '.workflow.assignment_type // (if .workflow.assignment_id then "people" else "select" end)' "$config")"
-assignment_id="$(jq -r '.workflow.assignment_id // empty' "$config")"
-assigned_value="$(jq -r '.workflow.assignment_value // empty' "$config")"
-status_property="$(jq -er '.workflow.status_property' "$config")"
-action_property="$(jq -r '.workflow.action_property // empty' "$config")"
-default_action="$(jq -r '.workflow.default_action // "Investigate"' "$config")"
-loop_status="$(jq -r '.workflow.loop_status // "Next"' "$config")"
-in_progress="$(jq -er '.workflow.in_progress_status' "$config")"
-ready_statuses="$(jq -ce '.workflow.ready_statuses // [.workflow.loop_status // "Next"] | if type == "array" and length > 0 then . else error("workflow.ready_statuses must be a non-empty array") end' "$config")"
+load_config() {
+  config="$(find_config)"
+  data_source="$(jq -er '.dashboard.data_source_id' "$config")"
+  assigned_property="$(jq -er '.workflow.assignment_property' "$config")"
+  assignment_type="$(jq -r '.workflow.assignment_type // (if .workflow.assignment_id then "people" else "select" end)' "$config")"
+  assignment_id="$(jq -r '.workflow.assignment_id // empty' "$config")"
+  assigned_value="$(jq -r '.workflow.assignment_value // empty' "$config")"
+  status_property="$(jq -er '.workflow.status_property' "$config")"
+  action_property="$(jq -r '.workflow.action_property // empty' "$config")"
+  permission_property="$(jq -r '.workflow.permission_property // "Permissions"' "$config")"
+  default_action="$(jq -r '.workflow.default_action // "Investigate"' "$config")"
+  agent_provider="$(jq -r '.agent.provider // empty' "$config")"
+  agent_model="$(jq -r '.agent.model // empty' "$config")"
+  agent_effort="$(jq -r '.agent.effort // empty' "$config")"
+  loop_status="$(jq -r '.workflow.loop_status // "Next"' "$config")"
+  in_progress="$(jq -er '.workflow.in_progress_status' "$config")"
+  ready_statuses="$(jq -ce '.workflow.ready_statuses // [.workflow.loop_status // "Next"] | if type == "array" and length > 0 then . else error("workflow.ready_statuses must be a non-empty array") end' "$config")"
 
-case "$assignment_type" in
-  people)
-    [[ -n "$assignment_id" || -n "$assigned_value" ]] || fail 'workflow.assignment_id or workflow.assignment_value is required when workflow.assignment_type is people'
-    ;;
-  select) ;;
-  *) fail "unsupported workflow.assignment_type: $assignment_type (expected select or people)" ;;
-esac
+  case "$assignment_type" in
+    people)
+      [[ -n "$assignment_id" || -n "$assigned_value" ]] || fail 'workflow.assignment_id or workflow.assignment_value is required when workflow.assignment_type is people'
+      ;;
+    select) ;;
+    *) fail "unsupported workflow.assignment_type: $assignment_type (expected select or people)" ;;
+  esac
+}
 
 assignment_filter() {
   if [[ "$assignment_type" == "people" ]]; then
@@ -76,6 +85,7 @@ compact_rows() {
     --arg assignment_id "$assignment_id" \
     --arg assigned_value "$assigned_value" \
     --arg action_property "$action_property" \
+    --arg permission_property "$permission_property" \
     --arg default_action "$default_action" '
     def field_name:
       (.select.name // .status.name // ([.rich_text[]?.plain_text] | join("")) // "");
@@ -90,9 +100,10 @@ compact_rows() {
     ) |
     ([.properties | to_entries[] | select(.value.type == "title") | .value.title | map(.plain_text) | join("")] | first) as $title |
     (if $action_property != "" then ($page.properties[$action_property] | field_name) else "" end) as $action_value |
+    (if $permission_property != "" then ($page.properties[$permission_property] | field_name) else "" end) as $permission_value |
     ($page.properties[$assigned_property] // {}) as $assigned |
     (if ($assigned.people // []) | length > 0 then ($assigned.people | map(.name // .id) | join(", ")) else ($assigned | field_name) end) as $owner |
-    [$page.id, $title, (if $action_value == "" then $default_action else $action_value end), ($page.properties[$status_property] | field_name), $owner, $page.url] | @tsv
+    [$page.id, $title, (if $action_value == "" then $default_action else $action_value end), ($page.properties[$status_property] | field_name), $owner, $page.url, (if $permission_value == "Full" then "Full" else "Default" end)] | @tsv
   '
 }
 
@@ -119,6 +130,59 @@ first_ready_result() {
   fail 'no assigned ready tasks'
 }
 
+run_peek_loop() {
+  local result rows
+  result="$(query_status "$loop_status" 1)"
+  rows="$(compact_rows <<<"$result")"
+  if [[ -z "$rows" ]]; then
+    printf 'EMPTY\t%s\n' "$loop_status"
+  else
+    printf 'READY\t%s\t%s\n' "$loop_status" "$(sed -n '1p' <<<"$rows")"
+  fi
+}
+
+list_child_board_dirs() {
+  local root="$1" path
+  for path in "$root"/*; do
+    [[ -d "$path" ]] || continue
+    [[ -f "$path/.notion-todo.json" ]] || continue
+    intake_flag="$(jq -r 'if .intake then "yes" else "no" end' "$path/.notion-todo.json" 2>/dev/null || printf 'no')"
+    if [[ "$intake_flag" == "yes" ]]; then
+      continue
+    fi
+    printf '%s\n' "$path"
+  done | LC_ALL=C sort
+}
+
+peek_one_board() {
+  local dir="$1" name err output state rest
+  name="$(basename "$dir")"
+  err="$(mktemp)"
+  if output="$(NOTION_TODO_ROOT="$dir" "$script_path" peek-loop 2>"$err")"; then
+    state="${output%%$'\t'*}"
+    rest="${output#*$'\t'}"
+    printf '%s\t%s\t%s\n' "$state" "$name" "$rest"
+    rm -f "$err"
+    return 0
+  fi
+  printf 'ERROR\t%s\t%s\n' "$name" "$(tr '\n' ' ' <"$err" | sed 's/[[:space:]]*$//')"
+  rm -f "$err"
+  return 0
+}
+
+run_peek_tree() {
+  local root="${NOTION_TODO_ROOT:-$PWD}" dir found=0
+  if [[ -f "$root/.notion-todo.json" ]]; then
+    peek_one_board "$root"
+    return
+  fi
+  while IFS= read -r dir; do
+    found=1
+    peek_one_board "$dir"
+  done < <(list_child_board_dirs "$root")
+  [[ "$found" -eq 1 ]] || fail 'no .notion-todo.json in this directory or its immediate children'
+}
+
 usage() {
   cat <<'EOF'
 Usage: notion-todo <command> [args]
@@ -127,21 +191,39 @@ Usage: notion-todo <command> [args]
   next                  Show the first task in configured ready-status order
   next-loop             Show the next assigned task in loop_status only
   next-next             Compatibility alias for next-loop
+  peek-loop             Cheap loop_status probe: EMPTY|READY TSV (state first), exit 0 when empty
+  peek-tree             Probe this board, or each immediate child board; state-first TSV per board
   show <page-id>        Print a task's Markdown content
   claim <page-id>       Recheck then change an assigned ready task to in-progress
+  result <page-id>      Prepend markdown at the start of the page (stdin or --content)
+                        [--attach PATH]... upload artifacts as file blocks; [--no-placeholder]
+  reorder-results       Move oldest-first AI work result sections to the top
+  agent                 Print board agent TSV: provider, model, effort (empty if unset)
+
+Board schema onboarding lives in notion-todo-onboard (same directory).
 EOF
 }
 
 case "${1:-}" in
+  peek-tree)
+    run_peek_tree
+    ;;
+  peek-loop)
+    load_config
+    run_peek_loop
+    ;;
   ready)
+    load_config
     while IFS= read -r status; do
       query_status "$status" 100 | compact_rows
     done < <(statuses_lines)
     ;;
   next)
+    load_config
     first_ready_result
     ;;
   next-loop|next-next)
+    load_config
     result="$(query_status "$loop_status" 1)"
     rows="$(compact_rows <<<"$result")"
     if [[ -z "$rows" ]]; then
@@ -150,10 +232,29 @@ case "${1:-}" in
     sed -n '1p' <<<"$rows"
     ;;
   show)
+    load_config
     [[ -n "${2:-}" ]] || fail 'show requires a page ID'
     ntn pages get "$2"
     ;;
+  agent)
+    load_config
+    if [[ -n "$agent_provider" ]]; then
+      case "$agent_provider" in
+        grok|claude|codex) ;;
+        *) fail "unsupported agent.provider: $agent_provider (expected grok, claude, or codex)" ;;
+      esac
+    fi
+    printf '%s\t%s\t%s\n' "$agent_provider" "$agent_model" "$agent_effort"
+    ;;
+  result)
+    [[ -n "${2:-}" ]] || fail 'result requires a page ID'
+    exec python3 "$script_dir/notion_ticket_log.py" result "${@:2}"
+    ;;
+  reorder-results)
+    exec python3 "$script_dir/notion_ticket_log.py" reorder-results "${@:2}"
+    ;;
   claim)
+    load_config
     page_id="${2:-}"
     [[ -n "$page_id" ]] || fail 'claim requires a page ID'
     page="$(ntn api "v1/pages/$page_id")"

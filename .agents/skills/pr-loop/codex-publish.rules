@@ -1,0 +1,89 @@
+# LifeOps pr-loop publish allow rules for Codex Default workers.
+# Installed by bin/life-ops-loop into ~/.codex/rules/life-ops-publish.rules.
+# decision allow skips the approve-for-me reviewer for these prefixes.
+# The loop's PreToolUse hook still blocks a public or unverifiable git push.
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes git push.",
+    match = ["git push", "git push -u origin HEAD"],
+    not_match = ["git status", "git pull"],
+)
+prefix_rule(
+    pattern = ["rtk", "git", "push"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk git push.",
+    match = ["rtk git push origin main"],
+    not_match = ["rtk git status"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "git", "push"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy git push.",
+    match = ["rtk proxy git push origin main"],
+    not_match = ["rtk proxy git status"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "--", "git", "push"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy -- git push.",
+    match = ["rtk proxy -- git push origin main"],
+    not_match = ["rtk proxy -- git status"],
+)
+prefix_rule(
+    pattern = ["gh", "pr", "create"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes gh pr create.",
+    match = ["gh pr create --fill"],
+    not_match = ["gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "gh", "pr", "create"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk gh pr create.",
+    match = ["rtk gh pr create --fill"],
+    not_match = ["rtk gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "gh", "pr", "create"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy gh pr create.",
+    match = ["rtk proxy gh pr create --fill"],
+    not_match = ["rtk proxy gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "--", "gh", "pr", "create"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy -- gh pr create.",
+    match = ["rtk proxy -- gh pr create --fill"],
+    not_match = ["rtk proxy -- gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["gh", "pr", "merge"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes gh pr merge, including squash, rebase, and --delete-branch.",
+    match = ["gh pr merge 1 --squash --delete-branch", "gh pr merge 1 --rebase"],
+    not_match = ["gh pr view 1", "gh pr close 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "gh", "pr", "merge"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk gh pr merge.",
+    match = ["rtk gh pr merge 1 --squash --delete-branch"],
+    not_match = ["rtk gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "gh", "pr", "merge"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy gh pr merge.",
+    match = ["rtk proxy gh pr merge 1 --rebase"],
+    not_match = ["rtk proxy gh pr view 1"],
+)
+prefix_rule(
+    pattern = ["rtk", "proxy", "--", "gh", "pr", "merge"],
+    decision = "allow",
+    justification = "LifeOps Default pr-loop authorizes rtk proxy -- gh pr merge.",
+    match = ["rtk proxy -- gh pr merge 1 --squash --delete-branch"],
+    not_match = ["rtk proxy -- gh pr view 1"],
+)

@@ -20,7 +20,7 @@ the plans do not answer. Each cycle should leave `main` deployable.
 
 ## Ground rules
 
-- Read `AGENTS.md` and/or `CLAUDE.md` first. Repo-local rules override this
+- Read `AGENTS.md` first. Repo-local rules override this
   generic workflow for commands, safety constraints, deployment targets, and
   verification expectations.
 - Read the relevant roadmap or feature plan before implementing:
@@ -219,7 +219,30 @@ review was produced" and merge on the local review.
 
 ### 5. Merge and deploy
 
-Merge according to repo policy. If the repo deploys automatically from `main`,
+Merge according to repo policy. Running this loop, or an assigned Implement
+ticket whose repository `delivery.mode` is `pr-loop`, is approval to push the
+branch and to open and merge the pull request this cycle opened. That includes
+`git push`, `gh pr create`, and `gh pr merge` with the repo's method (merge,
+squash, or rebase) onto the base branch, and `--delete-branch` for that pull
+request's head branch. The same command prefixed with `rtk`, `rtk proxy`, or
+`rtk proxy --` is the same operation. Run each as one simple command, without
+command substitution, so the launcher allow rule matches it. Do that in the
+normal auto / Default permission mode. `Permissions=Full` only bypasses the
+sandbox. It is not a merge gate, and a blank or Default value is not a reason
+to stop before the push, pull-request create, or merge, or to hand the ticket
+back asking for Full.
+
+That authorization is the same for Grok, Claude, and Codex. Grok and Claude
+match launcher allow rules. Codex matches the execpolicy allow rules in
+`codex-publish.rules` beside this skill (the life-ops launcher installs that
+file into `~/.codex/rules/life-ops-publish.rules` for a Default Codex worker).
+A new app does not keep a private allow-list. Its `AGENTS.md` points at this
+skill, and the same launcher starts every board.
+
+Do not force-push, delete the base branch, skip failing required checks, or
+merge a pull request this cycle did not open.
+
+If the repo deploys automatically from `main`,
 watch the deployment for the merged commit. If deploy is manual or not
 applicable, follow the repo-local release instructions or state that no deploy
 step exists.
